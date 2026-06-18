@@ -1,165 +1,214 @@
 <script>
   import { getTopology } from './context.js';
-  import { X, Save, Trash2, Edit2 } from '@lucide/svelte';
+  import X from '@lucide/svelte/icons/x';
 
   const topology = getTopology();
 
+  let configText = $state("");
+  let previousNodeId = $state(null);
+
+  $effect(() => {
+    if (topology.selectedNode && topology.isEditing) {
+      if (previousNodeId !== topology.selectedNode.id) {
+        const details = topology.selectedNode.details || {};
+        configText = JSON.stringify(details, null, 2);
+        previousNodeId = topology.selectedNode.id;
+      }
+    } else {
+      previousNodeId = null;
+    }
+  });
+
   function handleClose() {
-    topology.selectNode(null);
+    if (topology.selectedNodeId) topology.selectNode(null);
+    if (topology.selectedLinkId) topology.selectLink(null);
   }
 
   function handleDelete() {
-    if (topology.selectedNodeId) {
-      topology.deleteNode(topology.selectedNodeId);
+    if (topology.selectedNodeId) topology.deleteNode(topology.selectedNodeId);
+    if (topology.selectedLinkId) topology.deleteLink(topology.selectedLinkId);
+  }
+
+  function handleEdit() {
+    // The $effect will handle initializing configText
+    topology.isEditing = true;
+  }
+
+  function handleSave() {
+    if (topology.selectedNode) {
+      try {
+        const text = configText.trim() === "" ? "{}" : configText;
+        topology.selectedNode.details = JSON.parse(text);
+      } catch (err) {
+        alert("Invalid JSON in Config field. Please fix errors before saving.\n\n" + err.message);
+        return;
+      }
     }
+    topology.isEditing = false;
+    topology.pushHistory();
   }
 </script>
 
-{#if topology.selectedNode}
-  <aside class="sidebar glass-panel">
+{#if topology.selectedNode || topology.selectedLink}
+  <div class="sidebar-backdrop" onpointerdown={handleClose} role="button" tabindex="0" onkeydown={(e) => e.key === 'Escape' && handleClose()} aria-label="Close sidebar"></div>
+  <aside class="sidebar">
     <header class="sidebar-header">
-      <div class="header-title">
-        <h2>{topology.selectedNode.label}</h2>
-        <span class="badge {topology.selectedNode.status}">{topology.selectedNode.status}</span>
-      </div>
-      <button class="icon-btn" onclick={handleClose} aria-label="Close Sidebar">
-        <X size={20} />
+      <h2>{topology.selectedNode ? topology.selectedNode.label : 'Connection'}</h2>
+      <button class="icon-btn" onclick={handleClose} aria-label="Close">
+        <X size={20} color="var(--text-primary)" strokeWidth={1.5} />
       </button>
     </header>
 
     <div class="sidebar-content">
-      {#if topology.isEditing}
-        <div class="form-group">
-          <label for="node-label">Device Name</label>
-          <input id="node-label" type="text" bind:value={topology.selectedNode.label} />
-        </div>
-        <div class="form-group">
-          <label for="node-ip">IP Address</label>
-          <input id="node-ip" type="text" bind:value={topology.selectedNode.ip} />
-        </div>
-        <div class="form-group">
-          <label for="node-status">Status</label>
-          <select id="node-status" bind:value={topology.selectedNode.status}>
-            <option value="online">Online</option>
-            <option value="warning">Warning</option>
-            <option value="offline">Offline</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Details (JSON format)</label>
-          <textarea 
-            rows="5" 
-            value={JSON.stringify(topology.selectedNode.details, null, 2)}
-            onchange={(e) => {
-              try {
-                topology.selectedNode.details = JSON.parse(e.target.value);
-              } catch(err) {
-                // Ignore parse errors while typing
-              }
-            }}
-          ></textarea>
-        </div>
-      {:else}
-        <div class="info-group">
-          <span class="info-label">Type</span>
-          <span class="info-value type-caps">{topology.selectedNode.type}</span>
-        </div>
-        <div class="info-group">
-          <span class="info-label">IP Address</span>
-          <span class="info-value font-mono">{topology.selectedNode.ip}</span>
-        </div>
-        
-        <div class="divider"></div>
-        <h3 class="section-title">Device Specifics</h3>
-        
-        {#if Object.keys(topology.selectedNode.details).length === 0}
-          <p class="text-muted">No additional details configured.</p>
+      {#if topology.selectedNode}
+        {#if topology.isEditing}
+          <div class="form-group">
+            <label for="node-label">Name</label>
+            <input id="node-label" type="text" bind:value={topology.selectedNode.label} />
+          </div>
+          <div class="form-group">
+            <label for="node-ip">IP</label>
+            <input id="node-ip" type="text" bind:value={topology.selectedNode.ip} />
+          </div>
+          <div class="form-group">
+            <label for="node-status">Status</label>
+            <select id="node-status" bind:value={topology.selectedNode.status}>
+              <option value="online">Online</option>
+              <option value="warning">Warning</option>
+              <option value="offline">Offline</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="node-config">Config (JSON)</label>
+            <textarea 
+              id="node-config"
+              rows="5" 
+              bind:value={configText}
+            ></textarea>
+          </div>
         {:else}
-          {#each Object.entries(topology.selectedNode.details) as [key, value]}
-            <div class="info-group">
-              <span class="info-label capitalize">{key}</span>
-              <span class="info-value">{value}</span>
-            </div>
-          {/each}
+          <div class="info-group">
+            <span class="info-label">Type</span>
+            <span class="info-value">{topology.selectedNode.type}</span>
+          </div>
+          <div class="info-group">
+            <span class="info-label">IP</span>
+            <span class="info-value">{topology.selectedNode.ip}</span>
+          </div>
+          <div class="info-group">
+            <span class="info-label">Status</span>
+            <span class="info-value">{topology.selectedNode.status}</span>
+          </div>
+          <div class="divider"></div>
+          {#if !topology.selectedNode.details || typeof topology.selectedNode.details !== 'object' || Object.keys(topology.selectedNode.details).length === 0}
+            <p class="text-muted">No additional configuration.</p>
+          {:else}
+            {#each Object.entries(topology.selectedNode.details) as [key, value]}
+              <div class="info-group">
+                <span class="info-label">{key}</span>
+                <span class="info-value">{value}</span>
+              </div>
+            {/each}
+          {/if}
+        {/if}
+      {:else if topology.selectedLink}
+        {#if topology.isEditing}
+          <div class="form-group">
+            <label for="link-type">Connection Type</label>
+            <select id="link-type" bind:value={topology.selectedLink.type}>
+              <option value="ethernet">Ethernet (Solid)</option>
+              <option value="fiber">Fiber (Solid)</option>
+              <option value="wireless">Wireless (Dashed)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="link-status">Status</label>
+            <select id="link-status" bind:value={topology.selectedLink.status}>
+              <option value="active">Active</option>
+              <option value="warning">Warning</option>
+              <option value="offline">Offline</option>
+            </select>
+          </div>
+        {:else}
+          <div class="info-group">
+            <span class="info-label">Type</span>
+            <span class="info-value">{topology.selectedLink.type}</span>
+          </div>
+          <div class="info-group">
+            <span class="info-label">Status</span>
+            <span class="info-value">{topology.selectedLink.status}</span>
+          </div>
         {/if}
       {/if}
     </div>
 
     <footer class="sidebar-footer">
       {#if topology.isEditing}
-        <button class="btn btn-primary" onclick={() => topology.isEditing = false}>
-          <Save size={16} /> Save Changes
-        </button>
+        <button class="btn primary" onclick={handleSave}>Save</button>
       {:else}
-        <button class="btn btn-secondary" onclick={() => topology.isEditing = true}>
-          <Edit2 size={16} /> Edit
-        </button>
+        <button class="btn" onclick={handleEdit}>Edit</button>
       {/if}
-      <button class="btn btn-danger" onclick={handleDelete}>
-        <Trash2 size={16} /> Delete
-      </button>
+        <button class="btn" onclick={handleDelete}>Delete</button>
     </footer>
   </aside>
 {/if}
 
 <style>
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 25;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+
   .sidebar {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    width: 320px;
-    max-height: calc(100vh - 32px);
-    border-radius: 16px;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100dvh;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    z-index: 10;
-    animation: slideIn var(--transition-normal);
+    z-index: 30;
   }
 
   .sidebar-header {
-    padding: 20px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    border-bottom: 1px solid var(--surface-border);
+    align-items: center;
   }
 
-  .header-title h2 {
-    font-size: 1.25rem;
+  .sidebar-header h2 {
+    font-size: 1rem;
     font-weight: 600;
-    margin-bottom: 4px;
   }
-
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .badge.online { background: rgba(74, 222, 128, 0.1); color: var(--status-online); border: 1px solid rgba(74, 222, 128, 0.2); }
-  .badge.warning { background: rgba(251, 191, 36, 0.1); color: var(--status-warning); border: 1px solid rgba(251, 191, 36, 0.2); }
-  .badge.offline { background: rgba(244, 63, 94, 0.1); color: var(--status-offline); border: 1px solid rgba(244, 63, 94, 0.2); }
 
   .icon-btn {
-    color: var(--text-secondary);
+    border: none;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
     padding: 4px;
-    border-radius: 6px;
-    transition: background var(--transition-fast), color var(--transition-fast);
   }
-
   .icon-btn:hover {
-    background: var(--surface-highlight);
-    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.04);
   }
 
   .sidebar-content {
     padding: 20px;
-    overflow-y: auto;
     flex: 1;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -171,29 +220,19 @@
     gap: 6px;
   }
 
-  .form-group label {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
+  .form-group label, .info-label {
+    font-size: 0.75rem;
     font-weight: 500;
+    color: var(--text-secondary);
   }
 
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--surface-border);
-    border-radius: 8px;
-    padding: 8px 12px;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    transition: border-color var(--transition-fast);
+  .form-group input, .form-group select, .form-group textarea {
+    padding: 8px 10px;
+    font-size: 0.85rem;
   }
 
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus {
-    outline: none;
-    border-color: var(--accent-primary);
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--border-focus);
   }
 
   .info-group {
@@ -202,97 +241,36 @@
     align-items: baseline;
   }
 
-  .info-label {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-  }
-
   .info-value {
-    font-size: 0.875rem;
     font-weight: 500;
-    text-align: right;
-    word-break: break-all;
-    max-width: 60%;
-  }
-
-  .font-mono {
     font-family: var(--font-mono);
-  }
-
-  .type-caps {
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 0.75rem;
-  }
-
-  .capitalize {
+    font-size: 0.85rem;
+    text-align: right;
+    max-width: 60%;
+    word-break: break-all;
     text-transform: capitalize;
   }
 
   .divider {
-    height: 1px;
-    background: var(--surface-border);
-    margin: 4px 0;
-  }
-
-  .section-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    margin: 8px 0;
   }
 
   .text-muted {
-    color: var(--text-muted);
-    font-size: 0.875rem;
-    font-style: italic;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
   }
 
   .sidebar-footer {
-    padding: 20px;
-    border-top: 1px solid var(--surface-border);
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
     display: flex;
-    gap: 12px;
-  }
-
-  .btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     gap: 8px;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 500;
+  }
+
+  .sidebar-footer .btn {
     flex: 1;
-    transition: background var(--transition-fast), filter var(--transition-fast);
-  }
-
-  .btn:hover {
-    filter: brightness(1.1);
-  }
-
-  .btn-primary {
-    background: var(--accent-primary);
-    color: #020617;
-  }
-
-  .btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-  }
-
-  .btn-danger {
-    background: rgba(244, 63, 94, 0.1);
-    color: var(--status-offline);
-    flex: none;
-    padding: 10px;
-  }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(20px); }
-    to { opacity: 1; transform: translateX(0); }
   }
 
   @media (max-width: 768px) {
@@ -301,17 +279,16 @@
       bottom: 0;
       right: 0;
       left: 0;
-      width: 100%;
-      border-radius: 24px 24px 0 0;
-      animation: slideUp var(--transition-normal);
-      border-bottom: none;
+      width: 100vw;
+      height: 55dvh;
       border-left: none;
-      border-right: none;
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.05);
+      /* Add padding so the dock menu doesn't block the footer */
+      padding-bottom: 80px; 
     }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .sidebar-content {
+      /* Reclaim space from padding if needed, but padding-bottom on the sidebar container is better so the whole sheet extends behind dock */
     }
   }
 </style>
