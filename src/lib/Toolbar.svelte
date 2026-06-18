@@ -1,55 +1,273 @@
 <script>
   import { getTopology } from './context.js';
-  import { Plus, Server, Router, MonitorSmartphone, Wifi, CreditCard } from '@lucide/svelte';
+  import Plus from '@lucide/svelte/icons/plus';
+  import Server from '@lucide/svelte/icons/server';
+  import Router from '@lucide/svelte/icons/router';
+  import MonitorSmartphone from '@lucide/svelte/icons/monitor-smartphone';
+  import Wifi from '@lucide/svelte/icons/wifi';
+  import CreditCard from '@lucide/svelte/icons/credit-card';
+  import Cable from '@lucide/svelte/icons/cable';
+  import X from '@lucide/svelte/icons/x';
+  import Download from '@lucide/svelte/icons/download';
+  import Upload from '@lucide/svelte/icons/upload';
+  import Image from '@lucide/svelte/icons/image';
+  import { toPng, toSvg } from 'html-to-image';
 
   const topology = getTopology();
-  
   let menuOpen = $state(false);
+  let isLoading = $state(false);
+  let loadingText = $state("");
+  let fileInput;
 
   const deviceTypes = [
     { type: 'pos', icon: CreditCard, label: 'POS Terminal' },
     { type: 'router', icon: Router, label: 'Router' },
     { type: 'switch', icon: Server, label: 'Switch' },
     { type: 'ap', icon: Wifi, label: 'Access Point' },
-    { type: 'camera', icon: MonitorSmartphone, label: 'IP Camera' }
+    { type: 'camera', icon: MonitorSmartphone, label: 'Camera' }
   ];
 
   function handleAdd(type) {
     topology.addNode(type);
     menuOpen = false;
   }
+
+  function handleConnect() {
+    topology.toggleLinkingMode();
+    menuOpen = false;
+  }
+
+  function generateFilename(ext) {
+    const now = new Date();
+    const ymd = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+    const hms = `${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+    return `topology_${ymd}_${hms}.${ext}`;
+  }
+
+  function downloadFile(dataUrl, filename) {
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = dataUrl;
+    link.click();
+  }
+
+  function getBoundingBox() {
+    if (topology.nodes.length === 0) return { minX: 0, minY: 0, width: 800, height: 600 };
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    topology.nodes.forEach(n => {
+      minX = Math.min(minX, n.x);
+      minY = Math.min(minY, n.y);
+      maxX = Math.max(maxX, n.x + 150);
+      maxY = Math.max(maxY, n.y + 150);
+    });
+    const padding = 100;
+    minX -= padding;
+    minY -= padding;
+    maxX += padding;
+    maxY += padding;
+    return { minX, minY, width: maxX - minX, height: maxY - minY };
+  }
+
+  async function exportImage(type, mode) {
+    menuOpen = false;
+    isLoading = true;
+    loadingText = `Exporting ${type.toUpperCase()}...`;
+    
+    await new Promise(r => setTimeout(r, 50));
+    
+    try {
+      const node = document.querySelector('.transform-layer');
+      if (!node) return;
+      
+      let options = { 
+        backgroundColor: '#ffffff',
+        skipFonts: true,
+        fontEmbedCSS: ''
+      };
+      
+      if (mode === 'full') {
+        const bb = getBoundingBox();
+        options.width = bb.width;
+        options.height = bb.height;
+        options.style = {
+          transform: `translate(${-bb.minX}px, ${-bb.minY}px) scale(1)`,
+          width: `${bb.width}px`,
+          height: `${bb.height}px`
+        };
+      }
+      
+      const dataUrl = type === 'png' ? await toPng(node, options) : await toSvg(node, options);
+      downloadFile(dataUrl, generateFilename(type));
+    } catch (e) {
+      console.error(`${type} export failed`, e);
+      alert(`Export failed: ${e.message}`);
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  async function exportProject() {
+    menuOpen = false;
+    isLoading = true;
+    loadingText = "Saving Project...";
+    await new Promise(r => setTimeout(r, 50));
+    
+    try {
+      const data = topology.exportProject();
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      downloadFile(url, generateFilename('json'));
+      URL.revokeObjectURL(url);
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  async function handleImport(e) {
+    menuOpen = false;
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    isLoading = true;
+    loadingText = "Loading Project...";
+    
+    try {
+      const text = await file.text();
+      const success = topology.loadProject(text);
+      if (success) {
+        window.dispatchEvent(new CustomEvent('reset-zoom'));
+      } else {
+        alert("Failed to load project: Invalid file format.");
+      }
+    } catch (err) {
+      alert("Error reading file.");
+    } finally {
+      isLoading = false;
+      e.target.value = '';
+    }
+  }
 </script>
 
-<div class="toolbar-wrapper">
+{#if isLoading}
+  <div class="loading-overlay glass-effect">
+    <div class="spinner"></div>
+    <div class="loading-text">{loadingText}</div>
+  </div>
+{/if}
+
+{#if topology.isLinkingMode}
+  <div class="linking-toast">
+    <span>Tap two nodes to connect</span>
+    <button class="cancel-btn" onclick={() => topology.toggleLinkingMode()} aria-label="Cancel connection">
+      <X size={16} strokeWidth={2} />
+    </button>
+  </div>
+{/if}
+
+<div class="fab-wrapper">
   {#if menuOpen}
-    <div class="add-menu glass-panel">
-      {#each deviceTypes as device}
-        <button class="menu-item" onclick={() => handleAdd(device.type)}>
-          <device.icon size={18} />
-          <span>{device.label}</span>
-        </button>
-      {/each}
+    <div class="fab-menu glass-effect">
+      <div class="menu-scroll-container">
+        <div class="menu-section">
+          <span class="section-label">Add Node</span>
+          <div class="tile-grid">
+            {#each deviceTypes as device}
+              <button class="tile-btn" onclick={() => handleAdd(device.type)}>
+                <device.icon size={22} color="var(--text-secondary)" strokeWidth={1.5} />
+                <span class="tile-label">{device.label}</span>
+              </button>
+            {/each}
+          </div>
+        </div>
+
+        <div class="menu-divider"></div>
+
+        <div class="menu-section">
+          <span class="section-label">Project</span>
+          <div class="tile-grid">
+            <button class="tile-btn" onclick={exportProject}>
+              <Download size={22} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">Save</span>
+            </button>
+            <button class="tile-btn" onclick={() => fileInput.click()}>
+              <Upload size={22} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">Load</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-divider"></div>
+
+        <div class="menu-section">
+          <span class="section-label">Export Image</span>
+          <div class="tile-grid">
+            <button class="tile-btn" onclick={() => exportImage('png', 'full')}>
+              <Image size={22} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">PNG Full</span>
+            </button>
+            <button class="tile-btn" onclick={() => exportImage('png', 'view')}>
+              <Image size={22} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">PNG View</span>
+            </button>
+            <button class="tile-btn" onclick={() => exportImage('svg', 'full')}>
+              <Image size={22} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">SVG</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   {/if}
   
-  <button 
-    class="fab glass-panel {menuOpen ? 'active' : ''}" 
-    onclick={() => menuOpen = !menuOpen}
-    aria-label="Add Device"
-  >
-    <div class="fab-icon">
-      <Plus size={24} />
+  <button class="fab {menuOpen ? 'active' : ''}" onclick={() => menuOpen = !menuOpen} aria-label="Toggle tools menu">
+    <div class="fab-icon-wrapper" style="transform: {menuOpen ? 'rotate(45deg)' : 'rotate(0)'};">
+      <Plus size={32} color={menuOpen ? 'var(--surface)' : 'var(--text-primary)'} strokeWidth={1.5} />
     </div>
   </button>
 </div>
 
 {#if menuOpen}
-  <div class="backdrop" onclick={() => menuOpen = false} role="button" aria-label="Close menu" tabindex="0" onkeydown={(e) => e.key === 'Escape' && (menuOpen = false)}></div>
+  <div class="backdrop" onclick={() => menuOpen = false} role="button" tabindex="0" onkeydown={(e) => e.key === 'Escape' && (menuOpen = false)} aria-label="Close menu"></div>
 {/if}
 
+<input type="file" accept=".json" bind:this={fileInput} onchange={handleImport} style="display: none;" />
+
 <style>
-  .toolbar-wrapper {
-    position: absolute;
+  .loading-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0,0,0,0.1);
+    border-top-color: var(--text-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .loading-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .fab-wrapper {
+    position: fixed;
     bottom: 24px;
     right: 24px;
     z-index: 20;
@@ -57,61 +275,163 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 16px;
+    pointer-events: none;
   }
 
   .fab {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    border-radius: 32px;
+    border: 1px solid var(--border);
+    background: var(--surface);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-primary);
-    background: var(--surface-color);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 0 0 1px var(--surface-border);
-    transition: transform var(--transition-normal), background var(--transition-fast);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transition: background 0.2s, transform 0.1s;
+    pointer-events: auto;
+    cursor: pointer;
   }
 
-  .fab:hover {
-    background: rgba(30, 41, 59, 0.8);
-    transform: scale(1.05);
+  .fab:active {
+    transform: scale(0.95);
   }
 
-  .fab.active .fab-icon {
-    transform: rotate(45deg);
+  .fab.active {
+    background: var(--text-primary);
+    border-color: var(--text-primary);
   }
-
-  .fab-icon {
-    transition: transform var(--transition-normal);
+  
+  .fab-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease-out;
   }
-
-  .add-menu {
+  
+  .fab-menu {
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border-radius: 16px;
-    padding: 8px;
+    width: 260px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    pointer-events: auto;
+    max-height: 70vh;
     display: flex;
     flex-direction: column;
-    min-width: 200px;
-    animation: fadeIn var(--transition-fast);
-    transform-origin: bottom right;
   }
 
-  .menu-item {
+  .menu-scroll-container {
+    overflow-y: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 8px;
+  }
+
+  .menu-section {
+    padding: 12px 16px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .tile-grid {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .tile-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tile-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 4px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex: 0 0 64px;
+  }
+
+  .tile-btn:hover, .tile-btn:active {
+    background: var(--surface);
+    border-color: var(--text-secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .tile-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  .menu-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 20px;
+    flex-shrink: 0;
+  }
+
+  .linking-toast {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text-primary);
+    color: var(--surface);
+    padding: 12px 20px;
+    border-radius: 32px;
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 0.875rem;
+    z-index: 30;
+    font-size: 0.85rem;
     font-weight: 500;
-    color: var(--text-primary);
-    transition: background var(--transition-fast);
-    text-align: left;
-    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
-  .menu-item:hover {
-    background: var(--surface-highlight);
-    color: var(--accent-primary);
+  .cancel-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: var(--surface);
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .cancel-btn:active {
+    background: rgba(255,255,255,0.3);
   }
 
   .backdrop {
@@ -121,17 +441,24 @@
     width: 100vw;
     height: 100vh;
     z-index: 15;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+  @keyframes slideDown {
+    from { transform: translate(-50%, -100%); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
   }
 
   @media (max-width: 768px) {
-    .toolbar-wrapper {
+    .fab-wrapper {
       bottom: 24px;
       right: 24px;
+    }
+    .linking-toast {
+      top: auto;
+      bottom: 100px;
     }
   }
 </style>
