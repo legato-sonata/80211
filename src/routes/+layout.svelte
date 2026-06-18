@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-  <title>NetViz | Store Topology Mapping</title>
+  <title>80211 Topology</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Intuitive and beautiful network topology visualizer for store POS systems" />
 </svelte:head>
