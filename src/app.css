@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+:root {
+  --bg-gradient-start: #020617;
+  --bg-gradient-end: #0f172a;
+  
+  --surface-color: rgba(15, 23, 42, 0.65);
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-highlight: rgba(255, 255, 255, 0.12);
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  --accent-primary: #38bdf8;
+  --accent-primary-glow: rgba(56, 189, 248, 0.4);
+  
+  --status-online: #4ade80;
+  --status-online-glow: rgba(74, 222, 128, 0.4);
+  
+  --status-offline: #f43f5e;
+  --status-offline-glow: rgba(244, 63, 94, 0.4);
+  
+  --status-warning: #fbbf24;
+  --status-warning-glow: rgba(251, 191, 36, 0.4);
+  
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Fira Code', monospace;
+
+  --transition-fast: 0.15s ease-out;
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: radial-gradient(circle at center, var(--bg-gradient-end) 0%, var(--bg-gradient-start) 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow: hidden; /* App feels like a native desktop app */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: var(--surface-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--surface-highlight);
+}
+
+/* Forms and Inputs */
+input, select, button, textarea {
+  font-family: inherit;
+  color: inherit;
+}
+button {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
