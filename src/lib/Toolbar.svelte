@@ -15,6 +15,7 @@
   import Wand2 from '@lucide/svelte/icons/wand-2';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import Circle from '@lucide/svelte/icons/circle';
+  import Network from '@lucide/svelte/icons/network';
   import PrinterIcon from '@lucide/svelte/icons/printer';
   import { toPng, toSvg } from 'html-to-image';
 
@@ -227,6 +228,10 @@
             <button class="tile-btn" onclick={() => { menuOpen = false; topology.applyCircularLayout(); }}>
               <Circle size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">Circle</span>
+            </button>
+            <button class="tile-btn" onclick={() => { menuOpen = false; topology.applyHierarchicalLayout(); }}>
+              <Network size={18} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">Tree</span>
             </button>
           </div>
         </div>

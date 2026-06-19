@@ -272,6 +272,38 @@ export class TopologyState {
     this.centerGraph();
   }
 
+  async applyHierarchicalLayout() {
+    if (this.nodes.length === 0) return;
+
+    const dagre = await import('dagre');
+    const g = new dagre.graphlib.Graph();
+    g.setGraph({
+      rankdir: 'TB',
+      nodesep: 150,
+      edgesep: 80,
+      ranksep: 200
+    });
+    g.setDefaultEdgeLabel(() => ({}));
+
+    this.nodes.forEach(n => {
+      g.setNode(n.id, { width: 100, height: 80 });
+    });
+
+    this.links.forEach(l => {
+      g.setEdge(l.source, l.target);
+    });
+
+    dagre.layout(g);
+
+    this.nodes.forEach(n => {
+      const nodeWithPosition = g.node(n.id);
+      n.x = nodeWithPosition.x;
+      n.y = nodeWithPosition.y;
+    });
+
+    this.centerGraph();
+  }
+
   centerGraph() {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     this.nodes.forEach(n => {
