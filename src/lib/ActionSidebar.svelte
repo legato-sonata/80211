@@ -5,7 +5,6 @@
   import Undo2 from '@lucide/svelte/icons/undo-2';
   import Redo2 from '@lucide/svelte/icons/redo-2';
   import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
-  import Ticket from '@lucide/svelte/icons/ticket';
 
   const topology = getTopology();
 
@@ -15,12 +14,6 @@
 </script>
 
 <div class="action-sidebar">
-  <button class="action-btn glass-effect {topology.isTicketsOpen ? 'active' : ''}" onclick={() => topology.isTicketsOpen = !topology.isTicketsOpen} aria-label="Toggle Tickets">
-    <Ticket size={20} color={topology.isTicketsOpen ? 'var(--surface)' : 'var(--text-primary)'} strokeWidth={1.5} />
-  </button>
-
-  <div class="divider"></div>
-
   <button class="action-btn glass-effect" onclick={() => topology.resetToInitial()} aria-label="Reset Project">
     <RotateCcw size={20} color="var(--text-primary)" strokeWidth={1.5} />
   </button>

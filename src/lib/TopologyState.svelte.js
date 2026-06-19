@@ -6,7 +6,6 @@ export class TopologyState {
   isEditing = $state(false);
   isLinkingMode = $state(false);
   linkSourceId = $state(null);
-  isTicketsOpen = $state(false);
 
   history = $state([]);
   historyIndex = $state(-1);
@@ -31,22 +30,16 @@ export class TopologyState {
         { id: 'l4', source: 'n2', target: 'n5', type: 'wireless', status: 'active' },
         { id: 'l5', source: 'n2', target: 'n6', type: 'ethernet', status: 'active' },
         { id: 'l6', source: 'n2', target: 'n7', type: 'ethernet', status: 'warning' }
-      ],
-      tickets: [
-        { id: 't1', nodeId: 'n4', title: 'High Latency on Register 2', status: 'open', priority: 'high', date: '2026-06-19T06:00:00Z' },
-        { id: 't2', nodeId: 'n5', title: 'AP Offline in Guest Area', status: 'open', priority: 'medium', date: '2026-06-19T06:30:00Z' },
-        { id: 't3', nodeId: 'n7', title: 'Kitchen Printer Ink Low', status: 'open', priority: 'low', date: '2026-06-19T07:00:00Z' }
       ]
     };
     this.nodes = JSON.parse(JSON.stringify(this.initialState.nodes));
     this.links = JSON.parse(JSON.stringify(this.initialState.links));
-    this.tickets = JSON.parse(JSON.stringify(this.initialState.tickets));
     this.pushHistory();
   }
 
   pushHistory() {
     if (!this.isRecording) return;
-    const snapshot = JSON.stringify({ nodes: this.nodes, links: this.links, tickets: this.tickets });
+    const snapshot = JSON.stringify({ nodes: this.nodes, links: this.links });
     if (this.historyIndex >= 0 && this.history[this.historyIndex] === snapshot) return;
     
     this.history = this.history.slice(0, this.historyIndex + 1);
@@ -71,7 +64,6 @@ export class TopologyState {
   resetToInitial() {
     this.nodes = JSON.parse(JSON.stringify(this.initialState.nodes));
     this.links = JSON.parse(JSON.stringify(this.initialState.links));
-    this.tickets = JSON.parse(JSON.stringify(this.initialState.tickets));
     this.selectedNodeId = null;
     this.selectedLinkId = null;
     this.isLinkingMode = false;

@@ -4,7 +4,6 @@
   import NodeSidebar from '$lib/NodeSidebar.svelte';
   import Toolbar from '$lib/Toolbar.svelte';
   import ActionSidebar from '$lib/ActionSidebar.svelte';
-  import TicketSidebar from '$lib/TicketSidebar.svelte';
 
   const topology = setTopology();
 </script>
@@ -14,7 +13,6 @@
   <ActionSidebar />
   <Toolbar />
   <NodeSidebar />
-  <TicketSidebar />
 </div>
 
 <style>
