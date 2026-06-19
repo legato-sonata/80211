@@ -4,20 +4,7 @@
 
   const topology = getTopology();
 
-  let configText = $state("");
-  let previousNodeId = $state(null);
-
-  $effect(() => {
-    if (topology.selectedNode && topology.isEditing) {
-      if (previousNodeId !== topology.selectedNode.id) {
-        const details = topology.selectedNode.details || {};
-        configText = JSON.stringify(details, null, 2);
-        previousNodeId = topology.selectedNode.id;
-      }
-    } else {
-      previousNodeId = null;
-    }
-  });
+  // No longer using configText as we directly bind to details properties.
 
   function handleClose() {
     if (topology.selectedNodeId) topology.selectNode(null);
@@ -35,15 +22,6 @@
   }
 
   function handleSave() {
-    if (topology.selectedNode) {
-      try {
-        const text = configText.trim() === "" ? "{}" : configText;
-        topology.selectedNode.details = JSON.parse(text);
-      } catch (err) {
-        alert("Invalid JSON in Config field. Please fix errors before saving.\n\n" + err.message);
-        return;
-      }
-    }
     topology.isEditing = false;
     topology.pushHistory();
   }
@@ -78,14 +56,60 @@
               <option value="offline">Offline</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="node-config">Config (JSON)</label>
-            <textarea 
-              id="node-config"
-              rows="5" 
-              bind:value={configText}
-            ></textarea>
-          </div>
+          <div class="divider"></div>
+          <p class="section-title">Advanced Configuration</p>
+          {#if topology.selectedNode.type === 'router'}
+            <div class="form-group">
+              <label>DHCP Range</label>
+              <input type="text" bind:value={topology.selectedNode.details.dhcp} placeholder="e.g. 192.168.1.100-200" />
+            </div>
+            <div class="form-group">
+              <label>Firewall Status</label>
+              <select bind:value={topology.selectedNode.details.firewall}>
+                <option value="enabled">Enabled</option>
+                <option value="disabled">Disabled</option>
+              </select>
+            </div>
+          {:else if topology.selectedNode.type === 'ap'}
+            <div class="form-group">
+              <label>SSID Name</label>
+              <input type="text" bind:value={topology.selectedNode.details.ssid} placeholder="WiFi Name" />
+            </div>
+            <div class="form-group">
+              <label>VLAN ID</label>
+              <input type="text" bind:value={topology.selectedNode.details.vlan} placeholder="e.g. 10" />
+            </div>
+          {:else if topology.selectedNode.type === 'camera'}
+            <div class="form-group">
+              <label>Stream Resolution</label>
+              <select bind:value={topology.selectedNode.details.resolution}>
+                <option value="720p">720p</option>
+                <option value="1080p">1080p</option>
+                <option value="4K">4K</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>DVR Storage IP</label>
+              <input type="text" bind:value={topology.selectedNode.details.dvrIp} placeholder="192.168.1.x" />
+            </div>
+          {:else if topology.selectedNode.type === 'switch'}
+            <div class="form-group">
+              <label>Active VLANs</label>
+              <input type="text" bind:value={topology.selectedNode.details.vlans} placeholder="e.g. 10,20,30" />
+            </div>
+            <div class="form-group">
+              <label>PoE Status</label>
+              <select bind:value={topology.selectedNode.details.poe}>
+                <option value="enabled">Enabled</option>
+                <option value="disabled">Disabled</option>
+              </select>
+            </div>
+          {:else}
+            <div class="form-group">
+              <label>Custom Notes</label>
+              <textarea rows="3" bind:value={topology.selectedNode.details.notes} placeholder="Additional info..."></textarea>
+            </div>
+          {/if}
         {:else}
           <div class="info-group">
             <span class="info-label">Type</span>
