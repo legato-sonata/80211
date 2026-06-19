@@ -259,6 +259,19 @@ export class TopologyState {
     this.centerGraph();
   }
 
+  applyCircularLayout() {
+    if (this.nodes.length === 0) return;
+
+    const radius = Math.max(200, this.nodes.length * 40);
+    this.nodes.forEach((n, i) => {
+      const angle = (i / this.nodes.length) * 2 * Math.PI;
+      n.x = radius * Math.cos(angle);
+      n.y = radius * Math.sin(angle);
+    });
+
+    this.centerGraph();
+  }
+
   centerGraph() {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     this.nodes.forEach(n => {

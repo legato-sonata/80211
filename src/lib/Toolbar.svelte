@@ -14,6 +14,7 @@
   import FileText from '@lucide/svelte/icons/file-text';
   import Wand2 from '@lucide/svelte/icons/wand-2';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
+  import Circle from '@lucide/svelte/icons/circle';
   import PrinterIcon from '@lucide/svelte/icons/printer';
   import { toPng, toSvg } from 'html-to-image';
 
@@ -222,6 +223,10 @@
             <button class="tile-btn" onclick={() => { menuOpen = false; topology.applyGridLayout(); }}>
               <LayoutGrid size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">Grid</span>
+            </button>
+            <button class="tile-btn" onclick={() => { menuOpen = false; topology.applyCircularLayout(); }}>
+              <Circle size={18} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">Circle</span>
             </button>
           </div>
         </div>
