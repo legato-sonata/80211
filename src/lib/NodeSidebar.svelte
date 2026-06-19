@@ -401,7 +401,7 @@
       padding-bottom: 80px;
     }
     .sidebar-footer {
-      padding-right: 88px; /* Prevent FAB from overlapping buttons */
+      padding: 16px 20px;
     }
   }
 </style>
