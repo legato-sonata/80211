@@ -239,9 +239,29 @@ export class TopologyState {
       }
     }
     
-    // Center graph
+    this.centerGraph();
+    // Dispatch reset zoom to recenter canvas view on the newly laid out graph
+    window.dispatchEvent(new CustomEvent('reset-zoom'));
+  }
+
+  applyGridLayout() {
+    if (this.nodes.length === 0) return;
+
+    const cols = Math.ceil(Math.sqrt(this.nodes.length));
+    const spacingX = 180;
+    const spacingY = 150;
+
+    this.nodes.forEach((n, i) => {
+      n.x = (i % cols) * spacingX;
+      n.y = Math.floor(i / cols) * spacingY;
+    });
+
+    this.centerGraph();
+  }
+
+  centerGraph() {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    nodes.forEach(n => {
+    this.nodes.forEach(n => {
       minX = Math.min(minX, n.x);
       minY = Math.min(minY, n.y);
       maxX = Math.max(maxX, n.x);
@@ -251,13 +271,12 @@ export class TopologyState {
     const cx = (minX + maxX) / 2;
     const cy = (minY + maxY) / 2;
     
-    nodes.forEach(n => {
+    this.nodes.forEach(n => {
       n.x -= cx;
       n.y -= cy;
     });
     
     this.pushHistory();
-    // Dispatch reset zoom to recenter canvas view on the newly laid out graph
     window.dispatchEvent(new CustomEvent('reset-zoom'));
   }
 
