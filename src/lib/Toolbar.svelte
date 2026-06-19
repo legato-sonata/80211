@@ -44,12 +44,12 @@
     menuOpen = false;
   }
 
-  function generateFilename(ext) {
+  function generateFilename(suffix, ext) {
     const slug = (topology.name || 'topology').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const now = new Date();
     const ymd = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
     const hms = `${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
-    return `${slug}_${ymd}_${hms}.${ext}`;
+    return `${slug}_${suffix}_${ymd}_${hms}.${ext}`;
   }
 
   function downloadFile(dataUrl, filename) {
@@ -105,7 +105,7 @@
       }
       
       const dataUrl = type === 'png' ? await toPng(node, options) : await toSvg(node, options);
-      downloadFile(dataUrl, generateFilename(type));
+      downloadFile(dataUrl, generateFilename('map', type));
     } catch (e) {
       console.error(`${type} export failed`, e);
       alert(`Export failed: ${e.message}`);
@@ -124,7 +124,7 @@
       const data = topology.exportProject();
       const blob = new Blob([data], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      downloadFile(url, generateFilename('json'));
+      downloadFile(url, generateFilename('project', 'json'));
       URL.revokeObjectURL(url);
     } finally {
       isLoading = false;
