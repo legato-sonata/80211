@@ -11,6 +11,7 @@
   import Download from '@lucide/svelte/icons/download';
   import Upload from '@lucide/svelte/icons/upload';
   import Image from '@lucide/svelte/icons/image';
+  import PrinterIcon from '@lucide/svelte/icons/printer';
   import { toPng, toSvg } from 'html-to-image';
 
   const topology = getTopology();
@@ -24,7 +25,8 @@
     { type: 'router', icon: Router, label: 'Router' },
     { type: 'switch', icon: Server, label: 'Switch' },
     { type: 'ap', icon: Wifi, label: 'Access Point' },
-    { type: 'camera', icon: MonitorSmartphone, label: 'Camera' }
+    { type: 'camera', icon: MonitorSmartphone, label: 'CCTV Camera' },
+    { type: 'printer', icon: PrinterIcon, label: 'Printer' }
   ];
 
   function handleAdd(type) {

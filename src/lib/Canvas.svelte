@@ -5,6 +5,7 @@
   import MonitorSmartphone from '@lucide/svelte/icons/monitor-smartphone';
   import Wifi from '@lucide/svelte/icons/wifi';
   import CreditCard from '@lucide/svelte/icons/credit-card';
+  import PrinterIcon from '@lucide/svelte/icons/printer';
 
   import { onMount } from 'svelte';
   
@@ -206,6 +207,7 @@
       case 'switch': return Server;
       case 'pos': return CreditCard;
       case 'ap': return Wifi;
+      case 'printer': return PrinterIcon;
       default: return MonitorSmartphone;
     }
   }
