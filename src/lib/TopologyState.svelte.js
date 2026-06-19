@@ -7,6 +7,7 @@ export class TopologyState {
   isLinkingMode = $state(false);
   linkSourceId = $state(null);
   isUIHidden = $state(false);
+  isReportOpen = $state(false);
 
   history = $state([]);
   historyIndex = $state(-1);

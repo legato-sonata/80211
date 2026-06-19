@@ -125,17 +125,9 @@
     }
   }
 
-  function generateITReport() {
+  function openReport() {
     menuOpen = false;
-    let csv = "ID,Type,Label,IP Address,Status,Serial/MAC,Purchase Date,Last Maintenance\n";
-    topology.nodes.forEach(n => {
-      csv += `"${n.id}","${n.type.toUpperCase()}","${n.label}","${n.ip}","${n.status.toUpperCase()}","${n.details.serial || ''}","${n.details.purchaseDate || ''}","${n.details.lastMaintenance || ''}"\n`;
-    });
-    
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    downloadFile(url, generateFilename('csv'));
-    URL.revokeObjectURL(url);
+    topology.isReportOpen = true;
   }
 
   async function handleImport(e) {
@@ -216,7 +208,7 @@
         <div class="menu-section">
           <span class="section-label">Reports</span>
           <div class="tile-grid">
-            <button class="tile-btn" onclick={generateITReport}>
+            <button class="tile-btn" onclick={openReport}>
               <Download size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">IT Report</span>
             </button>

@@ -4,6 +4,7 @@
   import NodeSidebar from '$lib/NodeSidebar.svelte';
   import Toolbar from '$lib/Toolbar.svelte';
   import ActionSidebar from '$lib/ActionSidebar.svelte';
+  import ReportModal from '$lib/ReportModal.svelte';
 
   const topology = setTopology();
 </script>
@@ -15,6 +16,7 @@
     <Toolbar />
     <NodeSidebar />
   {/if}
+  <ReportModal />
 </div>
 
 <style>
