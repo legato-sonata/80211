@@ -274,7 +274,7 @@
               y1={source.y + 50} 
               x2={target.x + 50} 
               y2={target.y + 50} 
-              stroke-width={topology.selectedLinkId === link.id ? "3" : "2"} 
+              stroke-width={topology.selectedLinkId === link.id ? "4" : "2"} 
               stroke={getStrokeColor(link.status)}
               stroke-dasharray={getStrokePattern(link.type)}
               class="link-line"
@@ -368,7 +368,7 @@
   }
 
   .link.selected .link-line {
-    stroke: var(--text-primary) !important;
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.3));
   }
 
   .nodes-layer {
