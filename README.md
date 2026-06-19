@@ -1,42 +1,53 @@
-# sv
+# Network Topology Mapper
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A modern, web-based IT asset management and network topology visualization tool. Designed for IT support staff to map physical infrastructure across multiple locations, monitor device statuses, and manage hardware inventory efficiently.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- Multi-Location Management: Create separate tabs to manage different sites, offices, or network segments independently.
+- Interactive Canvas: Drag and drop nodes to build physical network diagrams.
+- Device Agnosticism: Document hardware from any vendor using generic device types such as Router, Switch, Server, Computer, POS, Access Point, CCTV Camera, and Printer.
+- Link Connections: Draw connections between devices indicating physical uplinks (Ethernet, Fiber) or logical connections (Wireless) and their active status.
+- Advanced Configuration Tracking: Store specific device configurations including IP Addresses, MAC/Serial numbers, VLANs, DHCP Ranges, PoE Status, OS, and Storage capacities.
+- Maintenance Logs: Track purchase dates and last maintenance records for individual assets.
+- Automated Topology Layouts: Apply algorithmic layouts including Force-Directed, Grid, Circular, and Hierarchical Tree structures to instantly organize complex networks.
+- Simulated Ticketing System: Generate pre-filled support tickets directly from a device's property panel.
+- Export Capabilities: Export the current network map as a PNG or SVG image. Generate comprehensive CSV asset reports for auditing. Save and load project JSON files.
+
+## Technology Stack
+
+- Svelte 5: Reactive UI framework.
+- D3-Force: Physics-based network graph simulations.
+- Dagre: Directed acyclic graph layout engine for hierarchical trees.
+- Html-to-Image: Client-side rendering for PNG/SVG exports.
+- Lucide Svelte: Minimalist icon library.
+
+## Getting Started
+
+First, install dependencies:
 
 ```sh
-# create a new project
-npx sv create my-app
+npm install
 ```
 
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@0.16.1 create --template minimal --no-types --add tailwindcss="plugins:typography,forms" mcp="ide:other+setup:remote" --install npm ./
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Start the development server:
 
 ```sh
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+Navigate to `http://localhost:5173` in your browser to view the application.
 
-To create a production version of your app:
+## Building for Production
+
+To create a production build:
 
 ```sh
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+You can preview the production build using:
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```sh
+npm run preview
+```

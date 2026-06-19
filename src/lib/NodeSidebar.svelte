@@ -30,7 +30,7 @@
   function openTicket() {
     const node = topology.selectedNode;
     const subject = `IT Support Ticket: ${node.label} (${node.type.toUpperCase()})`;
-    const body = `[SIMULATED EMAIL DRAFT]\n\nTo: it.support@amorbakery.com\nSubject: ${subject}\n\nDevice: ${node.label}\nIP Address: ${node.ip}\nSerial/MAC: ${node.details.serial || '-'}\nStatus: ${node.status.toUpperCase()}\n\nPlease describe the issue below:\n[Type issue here...]`;
+    const body = `[SIMULATED EMAIL DRAFT]\n\nTo: support@company.com\nSubject: ${subject}\n\nDevice: ${node.label}\nIP Address: ${node.ip}\nSerial/MAC: ${node.details.serial || '-'}\nStatus: ${node.status.toUpperCase()}\n\nPlease describe the issue below:\n[Type issue here...]`;
     alert(body);
   }
 </script>
