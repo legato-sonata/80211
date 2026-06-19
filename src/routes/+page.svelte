@@ -6,13 +6,15 @@
   
   const initialTabId = Date.now();
   let tabs = $state([
-    { id: initialTabId, name: 'Main Office Ahmad Yani', state: new TopologyState() }
+    { id: initialTabId, state: new TopologyState() }
   ]);
   let activeTabId = $state(initialTabId);
 
   function addTab() {
     const id = Date.now();
-    tabs.push({ id, name: `Outlet ${tabs.length + 1}`, state: new TopologyState() });
+    const newState = new TopologyState();
+    newState.name = `Office ${tabs.length + 1}`;
+    tabs.push({ id, state: newState });
     activeTabId = id;
   }
 
@@ -48,7 +50,7 @@
         >
           <input 
             class="tab-name" 
-            bind:value={tab.name} 
+            bind:value={tab.state.name} 
             onpointerdown={(e) => e.stopPropagation()}
             onkeydown={(e) => e.stopPropagation()}
           />

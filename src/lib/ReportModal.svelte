@@ -6,10 +6,11 @@
   const topology = getTopology();
 
   function generateFilename(ext) {
+    const slug = (topology.name || 'topology').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const now = new Date();
     const ymd = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
     const hms = `${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
-    return `topology_${ymd}_${hms}.${ext}`;
+    return `${slug}_${ymd}_${hms}.${ext}`;
   }
 
   function downloadFile(dataUrl, filename) {

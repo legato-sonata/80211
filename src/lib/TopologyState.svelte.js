@@ -1,4 +1,5 @@
 export class TopologyState {
+  name = $state('Office');
   nodes = $state([]);
   links = $state([]);
   selectedNodeId = $state(null);
