@@ -180,6 +180,87 @@ export class TopologyState {
     }
   }
 
+  autoLayout() {
+    if (this.nodes.length === 0) return;
+    
+    // Fruchterman-Reingold Force-Directed Layout
+    const iterations = 100;
+    // Base ideal distance between nodes
+    const k = 150; 
+    
+    const nodes = this.nodes;
+    const links = this.links;
+    
+    for (let i = 0; i < iterations; i++) {
+      const forces = nodes.map(() => ({ x: 0, y: 0 }));
+      
+      // Repulsion
+      for (let j = 0; j < nodes.length; j++) {
+        for (let l = j + 1; l < nodes.length; l++) {
+          let dx = nodes[j].x - nodes[l].x;
+          let dy = nodes[j].y - nodes[l].y;
+          let dist = Math.hypot(dx, dy) || 1;
+          let force = (k * k) / dist;
+          let fx = (dx / dist) * force;
+          let fy = (dy / dist) * force;
+          forces[j].x += fx;
+          forces[j].y += fy;
+          forces[l].x -= fx;
+          forces[l].y -= fy;
+        }
+      }
+      
+      // Attraction
+      for (let link of links) {
+        const sourceIdx = nodes.findIndex(n => n.id === link.source);
+        const targetIdx = nodes.findIndex(n => n.id === link.target);
+        if (sourceIdx >= 0 && targetIdx >= 0) {
+          let dx = nodes[sourceIdx].x - nodes[targetIdx].x;
+          let dy = nodes[sourceIdx].y - nodes[targetIdx].y;
+          let dist = Math.hypot(dx, dy) || 1;
+          let force = (dist * dist) / k;
+          let fx = (dx / dist) * force;
+          let fy = (dy / dist) * force;
+          forces[sourceIdx].x -= fx;
+          forces[sourceIdx].y -= fy;
+          forces[targetIdx].x += fx;
+          forces[targetIdx].y += fy;
+        }
+      }
+      
+      // Apply forces
+      const temp = k * 0.1 * (1 - i / iterations);
+      for (let j = 0; j < nodes.length; j++) {
+        const dist = Math.hypot(forces[j].x, forces[j].y) || 1;
+        const moveX = (forces[j].x / dist) * Math.min(dist, temp);
+        const moveY = (forces[j].y / dist) * Math.min(dist, temp);
+        nodes[j].x += moveX;
+        nodes[j].y += moveY;
+      }
+    }
+    
+    // Center graph
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    nodes.forEach(n => {
+      minX = Math.min(minX, n.x);
+      minY = Math.min(minY, n.y);
+      maxX = Math.max(maxX, n.x);
+      maxY = Math.max(maxY, n.y);
+    });
+    
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+    
+    nodes.forEach(n => {
+      n.x -= cx;
+      n.y -= cy;
+    });
+    
+    this.pushHistory();
+    // Dispatch reset zoom to recenter canvas view on the newly laid out graph
+    window.dispatchEvent(new CustomEvent('reset-zoom'));
+  }
+
   exportProject() {
     return JSON.stringify({ nodes: this.nodes, links: this.links }, null, 2);
   }

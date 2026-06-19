@@ -12,6 +12,7 @@
   import Upload from '@lucide/svelte/icons/upload';
   import Image from '@lucide/svelte/icons/image';
   import FileText from '@lucide/svelte/icons/file-text';
+  import Wand2 from '@lucide/svelte/icons/wand-2';
   import PrinterIcon from '@lucide/svelte/icons/printer';
   import { toPng, toSvg } from 'html-to-image';
 
@@ -200,6 +201,10 @@
             <button class="tile-btn" onclick={() => fileInput.click()}>
               <Upload size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">Load</span>
+            </button>
+            <button class="tile-btn" onclick={() => { menuOpen = false; topology.autoLayout(); }}>
+              <Wand2 size={18} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">Tidy Up</span>
             </button>
             <button class="tile-btn" onclick={openReport}>
               <FileText size={18} color="var(--text-secondary)" strokeWidth={1.5} />
