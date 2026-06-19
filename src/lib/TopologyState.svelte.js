@@ -158,7 +158,10 @@ export class TopologyState {
     if (!exists) {
       const id = `l${Date.now()}`;
       this.links.push({ id, source, target, type, status: 'active' });
-      this.selectLink(id);
+      // Delay selecting the link to let the user see the connection happen smoothly
+      setTimeout(() => {
+        this.selectLink(id);
+      }, 500);
       this.pushHistory();
     }
   }

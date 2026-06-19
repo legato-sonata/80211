@@ -183,11 +183,12 @@
 
     <footer class="sidebar-footer">
       {#if topology.isEditing}
+        <button class="btn" onclick={() => topology.isEditing = false}>Cancel</button>
         <button class="btn primary" onclick={handleSave}>Save</button>
       {:else}
-        <button class="btn" onclick={handleEdit}>Edit</button>
-      {/if}
         <button class="btn" onclick={handleDelete}>Delete</button>
+        <button class="btn primary" onclick={handleEdit}>Edit</button>
+      {/if}
     </footer>
   </aside>
 {/if}
@@ -315,10 +316,12 @@
     border-top: 1px solid var(--border);
     display: flex;
     gap: 8px;
+    justify-content: flex-end;
   }
 
   .sidebar-footer .btn {
-    flex: 1;
+    padding: 8px 16px;
+    font-size: 0.85rem;
   }
 
   @media (max-width: 768px) {

@@ -218,7 +218,7 @@
   }
 
   function getStrokeColor(status) {
-    if (status === 'offline') return "var(--border)";
+    if (status === 'offline') return "#dc2626";
     if (status === 'warning') return "#f59e0b";
     return "var(--text-primary)";
   }

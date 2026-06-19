@@ -11,6 +11,7 @@
   import Download from '@lucide/svelte/icons/download';
   import Upload from '@lucide/svelte/icons/upload';
   import Image from '@lucide/svelte/icons/image';
+  import FileText from '@lucide/svelte/icons/file-text';
   import PrinterIcon from '@lucide/svelte/icons/printer';
   import { toPng, toSvg } from 'html-to-image';
 
@@ -200,20 +201,14 @@
               <Upload size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">Load</span>
             </button>
-          </div>
-        </div>
-
-        <div class="menu-divider"></div>
-
-        <div class="menu-section">
-          <span class="section-label">Reports</span>
-          <div class="tile-grid">
             <button class="tile-btn" onclick={openReport}>
-              <Download size={18} color="var(--text-secondary)" strokeWidth={1.5} />
-              <span class="tile-label">IT Report</span>
+              <FileText size={18} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">Report</span>
             </button>
           </div>
         </div>
+
+        <!-- Reports section removed and merged into Project -->
 
         <div class="menu-divider"></div>
 
