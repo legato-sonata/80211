@@ -64,6 +64,8 @@
           {:else}
             <span 
               class="tab-name" 
+              role="button"
+              tabindex="0"
               ondblclick={() => {
                 editingTabId = tab.id;
                 setTimeout(() => document.getElementById('edit-tab-' + tab.id)?.focus(), 0);
