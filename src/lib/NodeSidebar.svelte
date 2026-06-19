@@ -42,20 +42,20 @@
         {#if topology.isEditing}
           <p class="section-title">Asset Information</p>
           <div class="form-group">
-            <label>Name</label>
-            <input type="text" bind:value={topology.selectedNode.label} />
+            <label for="node-label">Name</label>
+            <input id="node-label" type="text" bind:value={topology.selectedNode.label} />
           </div>
           <div class="form-group">
-            <label>Serial / MAC Address</label>
-            <input type="text" bind:value={topology.selectedNode.details.serial} placeholder="e.g. 00:1A:2B:3C:4D" />
+            <label for="node-serial">Serial / MAC Address</label>
+            <input id="node-serial" type="text" bind:value={topology.selectedNode.details.serial} placeholder="e.g. 00:1A:2B:3C:4D" />
           </div>
           <div class="form-group">
-            <label>Purchase Date</label>
-            <input type="date" bind:value={topology.selectedNode.details.purchaseDate} />
+            <label for="node-purchase-date">Purchase Date</label>
+            <input id="node-purchase-date" type="date" bind:value={topology.selectedNode.details.purchaseDate} />
           </div>
           <div class="form-group">
-            <label>Last Maintenance</label>
-            <input type="date" bind:value={topology.selectedNode.details.lastMaintenance} />
+            <label for="node-last-maintenance">Last Maintenance</label>
+            <input id="node-last-maintenance" type="date" bind:value={topology.selectedNode.details.lastMaintenance} />
           </div>
           <div class="divider"></div>
           <p class="section-title">Network Configuration</p>
@@ -75,54 +75,54 @@
           <p class="section-title">Advanced Configuration</p>
           {#if topology.selectedNode.type === 'router'}
             <div class="form-group">
-              <label>DHCP Range</label>
-              <input type="text" bind:value={topology.selectedNode.details.dhcp} placeholder="e.g. 192.168.1.100-200" />
+              <label for="node-dhcp">DHCP Range</label>
+              <input id="node-dhcp" type="text" bind:value={topology.selectedNode.details.dhcp} placeholder="e.g. 192.168.1.100-200" />
             </div>
             <div class="form-group">
-              <label>Firewall Status</label>
-              <select bind:value={topology.selectedNode.details.firewall}>
+              <label for="node-firewall">Firewall Status</label>
+              <select id="node-firewall" bind:value={topology.selectedNode.details.firewall}>
                 <option value="enabled">Enabled</option>
                 <option value="disabled">Disabled</option>
               </select>
             </div>
           {:else if topology.selectedNode.type === 'ap'}
             <div class="form-group">
-              <label>SSID Name</label>
-              <input type="text" bind:value={topology.selectedNode.details.ssid} placeholder="WiFi Name" />
+              <label for="node-ssid">SSID Name</label>
+              <input id="node-ssid" type="text" bind:value={topology.selectedNode.details.ssid} placeholder="WiFi Name" />
             </div>
             <div class="form-group">
-              <label>VLAN ID</label>
-              <input type="text" bind:value={topology.selectedNode.details.vlan} placeholder="e.g. 10" />
+              <label for="node-vlan">VLAN ID</label>
+              <input id="node-vlan" type="text" bind:value={topology.selectedNode.details.vlan} placeholder="e.g. 10" />
             </div>
           {:else if topology.selectedNode.type === 'camera'}
             <div class="form-group">
-              <label>Stream Resolution</label>
-              <select bind:value={topology.selectedNode.details.resolution}>
+              <label for="node-resolution">Stream Resolution</label>
+              <select id="node-resolution" bind:value={topology.selectedNode.details.resolution}>
                 <option value="720p">720p</option>
                 <option value="1080p">1080p</option>
                 <option value="4K">4K</option>
               </select>
             </div>
             <div class="form-group">
-              <label>DVR Storage IP</label>
-              <input type="text" bind:value={topology.selectedNode.details.dvrIp} placeholder="192.168.1.x" />
+              <label for="node-dvr">DVR Storage IP</label>
+              <input id="node-dvr" type="text" bind:value={topology.selectedNode.details.dvrIp} placeholder="192.168.1.x" />
             </div>
           {:else if topology.selectedNode.type === 'switch'}
             <div class="form-group">
-              <label>Active VLANs</label>
-              <input type="text" bind:value={topology.selectedNode.details.vlans} placeholder="e.g. 10,20,30" />
+              <label for="node-vlans">Active VLANs</label>
+              <input id="node-vlans" type="text" bind:value={topology.selectedNode.details.vlans} placeholder="e.g. 10,20,30" />
             </div>
             <div class="form-group">
-              <label>PoE Status</label>
-              <select bind:value={topology.selectedNode.details.poe}>
+              <label for="node-poe">PoE Status</label>
+              <select id="node-poe" bind:value={topology.selectedNode.details.poe}>
                 <option value="enabled">Enabled</option>
                 <option value="disabled">Disabled</option>
               </select>
             </div>
           {:else}
             <div class="form-group">
-              <label>Custom Notes</label>
-              <textarea rows="3" bind:value={topology.selectedNode.details.notes} placeholder="Additional info..."></textarea>
+              <label for="node-notes">Custom Notes</label>
+              <textarea id="node-notes" rows="3" bind:value={topology.selectedNode.details.notes} placeholder="Additional info..."></textarea>
             </div>
           {/if}
         {:else}
