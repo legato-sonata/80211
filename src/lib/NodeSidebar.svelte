@@ -40,10 +40,25 @@
     <div class="sidebar-content">
       {#if topology.selectedNode}
         {#if topology.isEditing}
+          <p class="section-title">Asset Information</p>
           <div class="form-group">
-            <label for="node-label">Name</label>
-            <input id="node-label" type="text" bind:value={topology.selectedNode.label} />
+            <label>Name</label>
+            <input type="text" bind:value={topology.selectedNode.label} />
           </div>
+          <div class="form-group">
+            <label>Serial / MAC Address</label>
+            <input type="text" bind:value={topology.selectedNode.details.serial} placeholder="e.g. 00:1A:2B:3C:4D" />
+          </div>
+          <div class="form-group">
+            <label>Purchase Date</label>
+            <input type="date" bind:value={topology.selectedNode.details.purchaseDate} />
+          </div>
+          <div class="form-group">
+            <label>Last Maintenance</label>
+            <input type="date" bind:value={topology.selectedNode.details.lastMaintenance} />
+          </div>
+          <div class="divider"></div>
+          <p class="section-title">Network Configuration</p>
           <div class="form-group">
             <label for="node-ip">IP</label>
             <input id="node-ip" type="text" bind:value={topology.selectedNode.ip} />
@@ -236,6 +251,15 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+  }
+
+  .section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 -8px 0;
   }
 
   .form-group {
