@@ -1,6 +1,7 @@
 <script>
   import { getTopology } from './context.js';
   import X from '@lucide/svelte/icons/x';
+  import Ticket from '@lucide/svelte/icons/ticket';
 
   const topology = getTopology();
 
@@ -24,6 +25,13 @@
   function handleSave() {
     topology.isEditing = false;
     topology.pushHistory();
+  }
+
+  function openTicket() {
+    const node = topology.selectedNode;
+    const subject = encodeURIComponent(`IT Support Ticket: ${node.label} (${node.type.toUpperCase()})`);
+    const body = encodeURIComponent(`Device: ${node.label}\nIP Address: ${node.ip}\nSerial/MAC: ${node.details.serial || '-'}\nStatus: ${node.status.toUpperCase()}\n\nPlease describe the issue below:\n`);
+    window.open(`mailto:it.support@amorbakery.com?subject=${subject}&body=${body}`);
   }
 </script>
 
@@ -212,8 +220,16 @@
         <button class="btn" onclick={() => topology.isEditing = false}>Cancel</button>
         <button class="btn primary" onclick={handleSave}>Save</button>
       {:else}
-        <button class="btn" onclick={handleDelete}>Delete</button>
-        <button class="btn primary" onclick={handleEdit}>Edit</button>
+        {#if topology.selectedNode}
+          <button class="btn ticket-btn" onclick={openTicket} aria-label="Open Ticket">
+            <Ticket size={16} strokeWidth={2} />
+            Ticket
+          </button>
+        {/if}
+        <div class="footer-actions">
+          <button class="btn" onclick={handleDelete}>Delete</button>
+          <button class="btn primary" onclick={handleEdit}>Edit</button>
+        </div>
       {/if}
     </footer>
   </aside>
@@ -341,13 +357,33 @@
     padding: 16px 20px;
     border-top: 1px solid var(--border);
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-actions {
+    display: flex;
     gap: 8px;
-    justify-content: flex-end;
+    margin-left: auto;
   }
 
   .sidebar-footer .btn {
     padding: 8px 16px;
     font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ticket-btn {
+    color: #4f46e5;
+    background: #eef2ff;
+    border-color: #c7d2fe;
+    font-weight: 600;
+  }
+
+  .ticket-btn:hover {
+    background: #e0e7ff;
   }
 
   @media (max-width: 768px) {
