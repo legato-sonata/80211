@@ -238,6 +238,12 @@
   onpointerup={handlePointerUp}
   onpointercancel={handlePointerUp}
   onwheel={handleWheel}
+  ondblclick={(e) => {
+    // Only toggle if they click the canvas background, not nodes
+    if (!e.target.closest('.node') && !e.target.closest('.link')) {
+      topology.isUIHidden = !topology.isUIHidden;
+    }
+  }}
 >
   <div class="transform-layer" style="transform: translate({transform.x}px, {transform.y}px) scale({transform.k});">
     <svg class="links-layer" bind:this={svgContainer}>

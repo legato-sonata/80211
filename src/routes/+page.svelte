@@ -10,9 +10,11 @@
 
 <div class="workspace">
   <Canvas />
-  <ActionSidebar />
-  <Toolbar />
-  <NodeSidebar />
+  {#if !topology.isUIHidden}
+    <ActionSidebar />
+    <Toolbar />
+    <NodeSidebar />
+  {/if}
 </div>
 
 <style>
