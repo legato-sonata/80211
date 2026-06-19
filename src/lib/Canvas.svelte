@@ -17,9 +17,44 @@
 
   onMount(() => {
     function doReset() {
-      transform.x = window.innerWidth / 2;
-      transform.y = window.innerHeight / 2;
-      transform.k = Math.min(1, window.innerWidth / 600);
+      if (!topology.nodes || topology.nodes.length === 0) {
+        transform.x = window.innerWidth / 2;
+        transform.y = window.innerHeight / 2;
+        transform.k = Math.min(1, window.innerWidth / 600);
+        return;
+      }
+
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      const nodeWidth = 100;
+      const nodeHeight = 80;
+
+      topology.nodes.forEach(n => {
+        minX = Math.min(minX, n.x);
+        minY = Math.min(minY, n.y);
+        maxX = Math.max(maxX, n.x + nodeWidth);
+        maxY = Math.max(maxY, n.y + nodeHeight);
+      });
+
+      const padding = 80;
+      const graphWidth = maxX - minX;
+      const graphHeight = maxY - minY;
+
+      const viewportWidth = window.innerWidth - padding * 2;
+      const viewportHeight = window.innerHeight - padding * 2;
+
+      let newK = 1;
+      if (graphWidth > 0 && graphHeight > 0) {
+        const scaleX = viewportWidth / graphWidth;
+        const scaleY = viewportHeight / graphHeight;
+        newK = Math.min(scaleX, scaleY);
+      }
+
+      const cx = (minX + maxX) / 2;
+      const cy = (minY + maxY) / 2;
+
+      transform.k = Math.max(0.05, Math.min(1, newK));
+      transform.x = window.innerWidth / 2 - cx * transform.k;
+      transform.y = window.innerHeight / 2 - cy * transform.k;
     }
     
     doReset();
