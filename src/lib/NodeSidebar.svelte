@@ -29,9 +29,9 @@
 
   function openTicket() {
     const node = topology.selectedNode;
-    const subject = encodeURIComponent(`IT Support Ticket: ${node.label} (${node.type.toUpperCase()})`);
-    const body = encodeURIComponent(`Device: ${node.label}\nIP Address: ${node.ip}\nSerial/MAC: ${node.details.serial || '-'}\nStatus: ${node.status.toUpperCase()}\n\nPlease describe the issue below:\n`);
-    window.open(`mailto:it.support@amorbakery.com?subject=${subject}&body=${body}`);
+    const subject = `IT Support Ticket: ${node.label} (${node.type.toUpperCase()})`;
+    const body = `[SIMULATED EMAIL DRAFT]\n\nTo: it.support@amorbakery.com\nSubject: ${subject}\n\nDevice: ${node.label}\nIP Address: ${node.ip}\nSerial/MAC: ${node.details.serial || '-'}\nStatus: ${node.status.toUpperCase()}\n\nPlease describe the issue below:\n[Type issue here...]`;
+    alert(body);
   }
 </script>
 
@@ -220,13 +220,13 @@
         <button class="btn" onclick={() => topology.isEditing = false}>Cancel</button>
         <button class="btn primary" onclick={handleSave}>Save</button>
       {:else}
-        {#if topology.selectedNode}
-          <button class="btn ticket-btn" onclick={openTicket} aria-label="Open Ticket">
-            <Ticket size={16} strokeWidth={2} />
-            Ticket
-          </button>
-        {/if}
         <div class="footer-actions">
+          {#if topology.selectedNode}
+            <button class="btn ticket-btn" onclick={openTicket} aria-label="Open Ticket">
+              <Ticket size={16} strokeWidth={2} />
+              Ticket
+            </button>
+          {/if}
           <button class="btn" onclick={handleDelete}>Delete</button>
           <button class="btn primary" onclick={handleEdit}>Edit</button>
         </div>
@@ -357,14 +357,13 @@
     padding: 16px 20px;
     border-top: 1px solid var(--border);
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
   }
 
   .footer-actions {
     display: flex;
     gap: 8px;
-    margin-left: auto;
   }
 
   .sidebar-footer .btn {
