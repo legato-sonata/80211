@@ -188,7 +188,7 @@
           <div class="tile-grid">
             {#each deviceTypes as device}
               <button class="tile-btn" onclick={() => handleAdd(device.type)}>
-                <device.icon size={22} color="var(--text-secondary)" strokeWidth={1.5} />
+                <device.icon size={18} color="var(--text-secondary)" strokeWidth={1.5} />
                 <span class="tile-label">{device.label}</span>
               </button>
             {/each}
@@ -201,21 +201,23 @@
           <span class="section-label">Project</span>
           <div class="tile-grid">
             <button class="tile-btn" onclick={exportProject}>
-              <Download size={22} color="var(--text-secondary)" strokeWidth={1.5} />
+              <Download size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">Save</span>
             </button>
             <button class="tile-btn" onclick={() => fileInput.click()}>
-              <Upload size={22} color="var(--text-secondary)" strokeWidth={1.5} />
+              <Upload size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">Load</span>
             </button>
           </div>
         </div>
 
+        <div class="menu-divider"></div>
+
         <div class="menu-section">
           <span class="section-label">Reports</span>
           <div class="tile-grid">
             <button class="tile-btn" onclick={generateITReport}>
-              <Download size={22} color="var(--text-secondary)" strokeWidth={1.5} />
+              <Download size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">IT Report</span>
             </button>
           </div>
@@ -227,15 +229,15 @@
           <span class="section-label">Export Image</span>
           <div class="tile-grid">
             <button class="tile-btn" onclick={() => exportImage('png', 'full')}>
-              <Image size={22} color="var(--text-secondary)" strokeWidth={1.5} />
+              <Image size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">PNG Full</span>
             </button>
             <button class="tile-btn" onclick={() => exportImage('png', 'view')}>
-              <Image size={22} color="var(--text-secondary)" strokeWidth={1.5} />
+              <Image size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">PNG View</span>
             </button>
             <button class="tile-btn" onclick={() => exportImage('svg', 'full')}>
-              <Image size={22} color="var(--text-secondary)" strokeWidth={1.5} />
+              <Image size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">SVG</span>
             </button>
           </div>
@@ -339,8 +341,8 @@
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border-radius: 16px;
-    width: 260px;
+    border-radius: 12px;
+    width: 220px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     overflow: hidden;
     pointer-events: auto;
@@ -365,7 +367,7 @@
   }
 
   .section-label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 700;
     color: var(--text-secondary);
     text-transform: uppercase;
@@ -374,7 +376,7 @@
 
   .tile-grid {
     display: flex;
-    gap: 8px;
+    gap: 4px;
     overflow-x: auto;
     padding-bottom: 8px;
     -ms-overflow-style: none;
@@ -390,14 +392,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 10px 4px;
-    border-radius: 10px;
+    gap: 4px;
+    padding: 8px 4px;
+    border-radius: 8px;
     border: 1px solid var(--border);
     background: rgba(255, 255, 255, 0.5);
     cursor: pointer;
     transition: all 0.15s ease;
-    flex: 0 0 64px;
+    flex: 0 0 54px;
   }
 
   .tile-btn:hover, .tile-btn:active {
@@ -408,7 +410,7 @@
   }
 
   .tile-label {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     font-weight: 600;
     color: var(--text-primary);
     text-align: center;
