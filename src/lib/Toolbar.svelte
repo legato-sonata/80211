@@ -360,10 +360,10 @@
   }
 
   .menu-section {
-    padding: 12px 16px 4px;
+    padding: 8px 12px 2px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
   }
 
   .section-label {
@@ -378,7 +378,7 @@
     display: flex;
     gap: 4px;
     overflow-x: auto;
-    padding-bottom: 8px;
+    padding-bottom: 4px;
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
@@ -392,8 +392,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    padding: 8px 4px;
+    gap: 2px;
+    padding: 6px 4px;
     border-radius: 8px;
     border: 1px solid var(--border);
     background: rgba(255, 255, 255, 0.5);
@@ -420,7 +420,7 @@
   .menu-divider {
     height: 1px;
     background: var(--border);
-    margin: 8px 20px;
+    margin: 4px 16px;
     flex-shrink: 0;
   }
 
