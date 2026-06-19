@@ -6,6 +6,8 @@
   import Wifi from '@lucide/svelte/icons/wifi';
   import CreditCard from '@lucide/svelte/icons/credit-card';
   import PrinterIcon from '@lucide/svelte/icons/printer';
+  import HardDrive from '@lucide/svelte/icons/hard-drive';
+  import Monitor from '@lucide/svelte/icons/monitor';
 
   import { onMount } from 'svelte';
   
@@ -240,6 +242,8 @@
     switch(type) {
       case 'router': return Router;
       case 'switch': return Server;
+      case 'server': return HardDrive;
+      case 'computer': return Monitor;
       case 'pos': return CreditCard;
       case 'ap': return Wifi;
       case 'printer': return PrinterIcon;

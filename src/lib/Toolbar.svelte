@@ -17,6 +17,8 @@
   import Circle from '@lucide/svelte/icons/circle';
   import Network from '@lucide/svelte/icons/network';
   import PrinterIcon from '@lucide/svelte/icons/printer';
+  import Monitor from '@lucide/svelte/icons/monitor';
+  import HardDrive from '@lucide/svelte/icons/hard-drive';
   import { toPng, toSvg } from 'html-to-image';
 
   const topology = getTopology();
@@ -26,11 +28,13 @@
   let fileInput;
 
   const deviceTypes = [
-    { type: 'pos', icon: CreditCard, label: 'POS Terminal' },
+    { type: 'computer', icon: Monitor, label: 'Computer' },
+    { type: 'pos', icon: CreditCard, label: 'POS' },
+    { type: 'server', icon: HardDrive, label: 'Server' },
     { type: 'router', icon: Router, label: 'Router' },
     { type: 'switch', icon: Server, label: 'Switch' },
-    { type: 'ap', icon: Wifi, label: 'Access Point' },
-    { type: 'camera', icon: MonitorSmartphone, label: 'CCTV Camera' },
+    { type: 'ap', icon: Wifi, label: 'WiFi AP' },
+    { type: 'camera', icon: MonitorSmartphone, label: 'CCTV' },
     { type: 'printer', icon: PrinterIcon, label: 'Printer' }
   ];
 

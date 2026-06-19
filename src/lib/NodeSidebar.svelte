@@ -119,6 +119,32 @@
                 <option value="disabled">Disabled</option>
               </select>
             </div>
+          {:else if topology.selectedNode.type === 'server'}
+            <div class="form-group">
+              <label for="node-os">Operating System</label>
+              <input id="node-os" type="text" bind:value={topology.selectedNode.details.os} placeholder="e.g. Ubuntu 22.04" />
+            </div>
+            <div class="form-group">
+              <label for="node-storage">Storage Capacity</label>
+              <input id="node-storage" type="text" bind:value={topology.selectedNode.details.storage} placeholder="e.g. 4TB RAID 1" />
+            </div>
+            <div class="form-group">
+              <label for="node-ram">RAM</label>
+              <input id="node-ram" type="text" bind:value={topology.selectedNode.details.ram} placeholder="e.g. 64GB" />
+            </div>
+          {:else if topology.selectedNode.type === 'computer'}
+            <div class="form-group">
+              <label for="node-user">Assigned User</label>
+              <input id="node-user" type="text" bind:value={topology.selectedNode.details.user} placeholder="Employee Name" />
+            </div>
+            <div class="form-group">
+              <label for="node-dept">Department</label>
+              <input id="node-dept" type="text" bind:value={topology.selectedNode.details.department} placeholder="e.g. Finance" />
+            </div>
+            <div class="form-group">
+              <label for="node-os">Operating System</label>
+              <input id="node-os" type="text" bind:value={topology.selectedNode.details.os} placeholder="e.g. Windows 11" />
+            </div>
           {:else}
             <div class="form-group">
               <label for="node-notes">Custom Notes</label>
