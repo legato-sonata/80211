@@ -332,11 +332,12 @@
       border-left: none;
       border-top: 1px solid var(--border);
       box-shadow: 0 -4px 16px rgba(0,0,0,0.05);
-      /* Add padding so the dock menu doesn't block the footer */
-      padding-bottom: 80px; 
     }
     .sidebar-content {
-      /* Reclaim space from padding if needed, but padding-bottom on the sidebar container is better so the whole sheet extends behind dock */
+      padding-bottom: 80px;
+    }
+    .sidebar-footer {
+      padding-right: 88px; /* Prevent FAB from overlapping buttons */
     }
   }
 </style>
