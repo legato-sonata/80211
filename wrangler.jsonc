@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "network-topology",
+  "name": "80211",
   "compatibility_date": "2024-06-19",
   "observability": {
     "enabled": true
@@ -12,5 +12,11 @@
   },
   "compatibility_flags": [
     "nodejs_compat"
+  ],
+  "routes": [
+    {
+      "pattern": "80211.web.id",
+      "custom_domain": true
+    }
   ]
 }
