@@ -27,21 +27,21 @@
       {#if topology.tickets && topology.tickets.length > 0}
         {#each topology.tickets as ticket (ticket.id)}
           {@const node = topology.nodes.find(n => n.id === ticket.nodeId)}
-          <div class="ticket-card {ticket.priority}">
+          <div class="ticket-card">
             <div class="ticket-header">
-              <span class="ticket-title">{ticket.title}</span>
+              <span class="ticket-title"><span class="status-dot {ticket.priority}"></span>{ticket.title}</span>
               <span class="ticket-status">{ticket.status}</span>
             </div>
             <div class="ticket-meta">
-              <span>Node: {node ? node.label : 'Unknown'}</span>
-              <span>Priority: {ticket.priority}</span>
+              <span>NODE: {node ? node.label : 'UNKNOWN'}</span>
+              <span>PRIORITY: {ticket.priority.toUpperCase()}</span>
             </div>
             <div class="ticket-actions">
-              <button class="btn btn-small" onclick={() => { topology.selectNode(ticket.nodeId); handleClose(); }}>View Node</button>
-              <button class="btn btn-small primary" onclick={() => {
+              <button class="btn" onclick={() => { topology.selectNode(ticket.nodeId); handleClose(); }}>VIEW NODE</button>
+              <button class="btn primary" onclick={() => {
                 topology.tickets = topology.tickets.filter(t => t.id !== ticket.id);
                 topology.pushHistory();
-              }}>Resolve</button>
+              }}>RESOLVE</button>
             </div>
           </div>
         {/each}
@@ -63,9 +63,7 @@
     width: 100vw;
     height: 100vh;
     z-index: 25;
-    background: rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
+    background: rgba(0, 0, 0, 0.2);
   }
 
   .sidebar {
@@ -74,19 +72,22 @@
     left: 0;
     width: 320px;
     height: 100dvh;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
+    background: #fff;
+    border-right: 1px solid #000;
     display: flex;
     flex-direction: column;
     z-index: 30;
+    color: #000;
+    font-family: monospace;
   }
 
   .sidebar-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    border-bottom: 1px solid #000;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: #fff;
   }
 
   .title {
@@ -96,9 +97,11 @@
   }
 
   .title h2 {
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: uppercase;
     margin: 0;
+    letter-spacing: 0.5px;
   }
 
   .icon-btn {
@@ -107,36 +110,50 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
     padding: 4px;
     cursor: pointer;
+    color: #000;
   }
   .icon-btn:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: #000;
+    color: #fff;
   }
 
   .sidebar-content {
-    padding: 20px;
+    padding: 16px;
     flex: 1;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
   }
 
   .ticket-card {
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
+    border: 1px solid #000;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.5);
+    gap: 6px;
+    background: #fff;
+    position: relative;
   }
 
-  .ticket-card.high { border-left: 4px solid #ef4444; }
-  .ticket-card.medium { border-left: 4px solid #f59e0b; }
-  .ticket-card.low { border-left: 4px solid #3b82f6; }
+  .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .status-dot.high { background: #555; }
+  .status-dot.medium { background: #999; }
+  .status-dot.low { background: #ccc; }
+  
+  /* User allowed low profile color for conditions */
+  .status-dot.high { background: #cc0000; }
+  .status-dot.medium { background: #cc8800; }
+  .status-dot.low { background: #0066cc; }
 
   .ticket-header {
     display: flex;
@@ -145,67 +162,72 @@
   }
 
   .ticket-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: bold;
   }
 
   .ticket-status {
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-size: 0.65rem;
+    font-weight: bold;
     text-transform: uppercase;
-    background: #e2e8f0;
-    padding: 2px 6px;
-    border-radius: 4px;
-    color: var(--text-secondary);
+    border: 1px solid #000;
+    padding: 1px 4px;
   }
 
   .ticket-meta {
     font-size: 0.75rem;
-    color: var(--text-secondary);
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
   }
 
   .ticket-actions {
     display: flex;
-    gap: 8px;
-    margin-top: 8px;
+    gap: 6px;
+    margin-top: 6px;
   }
 
   .btn {
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-primary);
-    font-size: 0.8rem;
-    font-weight: 500;
+    padding: 4px 8px;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+    font-size: 0.75rem;
+    font-family: monospace;
+    font-weight: bold;
+    text-transform: uppercase;
     cursor: pointer;
     flex: 1;
   }
 
+  .btn:hover {
+    background: #eee;
+  }
+
   .btn.primary {
-    background: var(--text-primary);
-    color: var(--surface);
-    border-color: var(--text-primary);
+    background: #000;
+    color: #fff;
+  }
+
+  .btn.primary:hover {
+    background: #333;
   }
 
   .empty-state {
     text-align: center;
     padding: 40px 20px;
+    border: 1px dashed #000;
   }
 
   .empty-state p {
     margin: 4px 0;
-    font-weight: 500;
-    color: var(--text-primary);
+    font-weight: bold;
+    font-size: 0.85rem;
   }
 
   .empty-state .text-muted {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
+    font-size: 0.75rem;
+    color: #666;
   }
 
   @media (max-width: 768px) {
