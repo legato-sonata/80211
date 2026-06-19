@@ -9,6 +9,7 @@
     { id: initialTabId, state: new TopologyState() }
   ]);
   let activeTabId = $state(initialTabId);
+  let editingTabId = $state(null);
 
   function addTab() {
     const id = Date.now();
@@ -48,12 +49,29 @@
           tabindex="0"
           onkeydown={(e) => e.key === 'Enter' && (activeTabId = tab.id)}
         >
-          <input 
-            class="tab-name" 
-            bind:value={tab.state.name} 
-            onpointerdown={(e) => e.stopPropagation()}
-            onkeydown={(e) => e.stopPropagation()}
-          />
+          {#if editingTabId === tab.id}
+            <input 
+              id="edit-tab-{tab.id}"
+              class="tab-name input-active" 
+              bind:value={tab.state.name} 
+              onblur={() => editingTabId = null}
+              onkeydown={(e) => {
+                e.stopPropagation();
+                if (e.key === 'Enter') editingTabId = null;
+              }}
+              onpointerdown={(e) => e.stopPropagation()}
+            />
+          {:else}
+            <span 
+              class="tab-name" 
+              ondblclick={() => {
+                editingTabId = tab.id;
+                setTimeout(() => document.getElementById('edit-tab-' + tab.id)?.focus(), 0);
+              }}
+            >
+              {tab.state.name}
+            </span>
+          {/if}
           {#if tabs.length > 1}
             <button class="close-tab" onclick={(e) => closeTab(tab.id, e)} aria-label="Close tab">
               <X size={14} strokeWidth={2} color="var(--text-secondary)" />
@@ -127,18 +145,23 @@
   }
 
   .tab-name {
-    border: none;
-    background: transparent;
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-primary);
     width: 140px;
-    outline: none;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    user-select: none;
+    touch-action: manipulation; /* Improves double-tap responsiveness on mobile */
   }
 
-  .tab-name:focus {
+  input.tab-name.input-active {
+    border: none;
+    background: transparent;
+    outline: none;
     border-bottom: 1px solid var(--text-primary);
+    user-select: text;
   }
 
   .close-tab {
