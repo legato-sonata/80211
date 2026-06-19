@@ -91,6 +91,7 @@ export class TopologyState {
   get selectedLink() { return this.links.find(l => l.id === this.selectedLinkId) || null; }
 
   selectNode(id) {
+    this.isUIHidden = false;
     if (this.isLinkingMode) {
       if (!this.linkSourceId) {
         this.linkSourceId = id;
@@ -107,6 +108,7 @@ export class TopologyState {
   }
 
   selectLink(id) {
+    this.isUIHidden = false;
     this.selectedLinkId = id;
     this.selectedNodeId = null;
     this.isEditing = false;
@@ -115,6 +117,7 @@ export class TopologyState {
   }
 
   toggleLinkingMode() {
+    this.isUIHidden = false;
     this.isLinkingMode = !this.isLinkingMode;
     this.linkSourceId = null;
     if (this.isLinkingMode) {
@@ -124,6 +127,7 @@ export class TopologyState {
   }
 
   addNode(type) {
+    this.isUIHidden = false;
     const id = `n${Date.now()}`;
     const newNode = {
       id,
