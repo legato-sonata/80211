@@ -4,7 +4,7 @@
     selectedId = $state(1);
     get selectedItem() { return this.items.find(i => i.id === this.selectedId); }
   }
-  const state = new State();
+  const appState = new State();
 </script>
 
-<input type="text" bind:value={state.selectedItem.name} />
+<input type="text" bind:value={appState.selectedItem.name} />
