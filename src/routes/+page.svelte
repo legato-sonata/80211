@@ -4,10 +4,11 @@
   import Plus from '@lucide/svelte/icons/plus';
   import X from '@lucide/svelte/icons/x';
   
+  const initialTabId = Date.now();
   let tabs = $state([
-    { id: Date.now(), name: 'Main Office Ahmad Yani', state: new TopologyState() }
+    { id: initialTabId, name: 'Main Office Ahmad Yani', state: new TopologyState() }
   ]);
-  let activeTabId = $state(tabs[0].id);
+  let activeTabId = $state(initialTabId);
 
   function addTab() {
     const id = Date.now();
@@ -27,6 +28,14 @@
 </script>
 
 <div class="app-layout">
+  <div class="workspace-area">
+    {#each tabs as tab (tab.id)}
+      <div class="workspace-wrapper" style="display: {tab.id === activeTabId ? 'block' : 'none'};">
+         <Workspace topology={tab.state} />
+      </div>
+    {/each}
+  </div>
+
   <div class="tabs-bar glass-effect">
     <div class="tabs-scroll">
       {#each tabs as tab (tab.id)}
@@ -55,14 +64,6 @@
       <Plus size={16} strokeWidth={2} color="var(--text-primary)" />
     </button>
   </div>
-
-  <div class="workspace-area">
-    {#each tabs as tab (tab.id)}
-      <div class="workspace-wrapper" style="display: {tab.id === activeTabId ? 'block' : 'none'};">
-         <Workspace topology={tab.state} />
-      </div>
-    {/each}
-  </div>
 </div>
 
 <style>
@@ -79,7 +80,7 @@
     display: flex;
     align-items: center;
     padding: 0 16px;
-    border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border);
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);

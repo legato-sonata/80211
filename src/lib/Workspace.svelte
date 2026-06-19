@@ -6,8 +6,10 @@
   import ActionSidebar from '$lib/ActionSidebar.svelte';
   import ReportModal from '$lib/ReportModal.svelte';
 
+  import { untrack } from 'svelte';
+
   let { topology } = $props();
-  setTopology(topology);
+  setTopology(untrack(() => topology));
 </script>
 
 <div class="workspace-inner">
