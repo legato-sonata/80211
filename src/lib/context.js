@@ -3,8 +3,7 @@ import { TopologyState } from './TopologyState.svelte.js';
 
 const KEY = Symbol('topology');
 
-export function setTopology() {
-  const state = new TopologyState();
+export function setTopology(state = new TopologyState()) {
   setContext(KEY, state);
   return state;
 }
