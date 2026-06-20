@@ -145,10 +145,10 @@
   }
 </script>
 
-<div class="modal-backdrop" onpointerdown={onClose} role="button" tabindex="0" onkeydown={(e) => e.key === 'Escape' && onClose()} aria-label="Close modal">
+<div class="modal-backdrop" onkeydown={(e) => e.key === 'Escape' && onClose()}>
   <div class="modal-content" onpointerdown={(e) => e.stopPropagation()} role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="terminal-title">
     <header class="modal-header">
-      <h3 id="terminal-title">Command Prompt - {node.label}</h3>
+      <h3 id="terminal-title">Terminal - {node.label}</h3>
       <button class="icon-btn" onclick={onClose} aria-label="Close">
         <X size={20} />
       </button>
