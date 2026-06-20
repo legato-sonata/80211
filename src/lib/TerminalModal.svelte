@@ -158,9 +158,9 @@
       {#each outputLines as line}
         <div class="term-line">{line}</div>
       {/each}
-      <form class="term-input-line" onsubmit={handleCommand}>
+      <form class="term-input-line" onsubmit={handleCommand} autocomplete="off">
         <span class="prompt">C:\Users\{node.label}&gt;</span>
-        <input id="term-input" type="text" bind:value={input} oninput={() => input = input.toLowerCase()} autocomplete="off" spellcheck="false" use:focusOnMount />
+        <input id="term-input" type="text" bind:value={input} oninput={() => input = input.toLowerCase()} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-form-type="other" data-1p-ignore="true" data-lpignore="true" use:focusOnMount />
       </form>
     </div>
   </div>
