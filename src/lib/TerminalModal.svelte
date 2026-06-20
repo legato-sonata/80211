@@ -7,8 +7,8 @@
 
   const topology = getTopology();
   
-  let input = '';
-  let outputLines = [];
+  let input = $state('');
+  let outputLines = $state([]);
   
   let terminalContainer;
 
@@ -22,12 +22,12 @@
   }
 
   function handleCommand(e) {
-    if (e.key === 'Enter') {
-      const cmd = input.trim();
-      printLine(`C:\\Users\\${node.label}> ${cmd}`);
-      input = '';
-      
-      if (!cmd) return;
+    e.preventDefault();
+    const cmd = input.trim();
+    printLine(`C:\\Users\\${node.label}> ${cmd}`);
+    input = '';
+    
+    if (!cmd) return;
 
       const args = cmd.split(' ');
       const program = args[0].toLowerCase();
@@ -137,27 +137,26 @@
         printLine(`'${program}' is not recognized as an internal or external command,`);
         printLine('operable program or batch file.');
       }
-    }
   }
 </script>
 
-<div class="modal-backdrop" onpointerdown={onClose}>
-  <div class="modal-content" onpointerdown={(e) => e.stopPropagation()}>
+<div class="modal-backdrop" onpointerdown={onClose} role="button" tabindex="0" onkeydown={(e) => e.key === 'Escape' && onClose()} aria-label="Close modal">
+  <div class="modal-content" onpointerdown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="terminal-title">
     <header class="modal-header">
-      <h3>Command Prompt - {node.label}</h3>
-      <button class="icon-btn" onclick={onClose}>
+      <h3 id="terminal-title">Command Prompt - {node.label}</h3>
+      <button class="icon-btn" onclick={onClose} aria-label="Close">
         <X size={20} />
       </button>
     </header>
     
-    <div class="terminal-body" bind:this={terminalContainer} onclick={() => document.getElementById('term-input').focus()}>
+    <div class="terminal-body" bind:this={terminalContainer} onclick={() => document.getElementById('term-input').focus()} role="presentation" onkeydown={(e) => e.key === 'Enter' && document.getElementById('term-input').focus()}>
       {#each outputLines as line}
         <div class="term-line">{line}</div>
       {/each}
-      <div class="term-input-line">
+      <form class="term-input-line" onsubmit={handleCommand}>
         <span class="prompt">C:\Users\{node.label}&gt;</span>
-        <input id="term-input" type="text" bind:value={input} onkeydown={handleCommand} autocomplete="off" spellcheck="false" autofocus />
-      </div>
+        <input id="term-input" type="text" bind:value={input} autocomplete="off" spellcheck="false" autofocus />
+      </form>
     </div>
   </div>
 </div>
