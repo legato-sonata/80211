@@ -18,6 +18,7 @@ export class TopologyState {
 
   constructor() {
     this.initialState = {
+      nodes: [
         { id: 'n1', type: 'router', label: 'Main Gateway', ip: '192.168.1.1', subnet: '255.255.255.0', gateway: '0.0.0.0', status: 'online', details: { dhcp: '192.168.1.100 - 192.168.1.200', firmware: 'v2.4.1', model: 'ER-X' }, x: -50, y: -200 },
         { id: 'n2', type: 'switch', label: 'Core Switch', ip: '192.168.1.2', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { ports: 24, poe: true, model: 'USW-24-PoE' }, x: -50, y: -50 },
         { id: 'n3', type: 'pos', label: 'Register 1', ip: '192.168.1.101', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { mac: '00:1A:2B:3C:4D:5E', location: 'Front Counter' }, x: -250, y: 150 },
