@@ -152,3 +152,70 @@ export function simulateTracert(topology, sourceId, targetIp) {
 
   return { success: true, hops };
 }
+
+export function simulateNslookup(topology, sourceId, domain) {
+  // Simplistic DNS: We assume the router acts as a DNS forwarder or we have a local DNS server.
+  // We just search the topology for a node with details.domain === domain
+  const nodes = topology.nodes;
+  const sourceNode = nodes.find(n => n.id === sourceId);
+  if (!sourceNode || sourceNode.status !== 'online') {
+    return { success: false, message: "DNS request timed out. \ntimeout was 2 seconds." };
+  }
+
+  const targetNode = nodes.find(n => n.details && n.details.domain === domain);
+  if (targetNode) {
+    return { success: true, ip: targetNode.ip, server: "UnKnown", address: "192.168.1.1" };
+  } else {
+    return { success: false, message: `*** UnKnown can't find ${domain}: Non-existent domain` };
+  }
+}
+
+export function simulateDhcp(topology, sourceId) {
+  const nodes = topology.nodes;
+  const links = topology.links;
+  const sourceNode = nodes.find(n => n.id === sourceId);
+  
+  if (!sourceNode || sourceNode.status !== 'online') {
+    return { success: false, message: "Media disconnected." };
+  }
+
+  // Find a reachable DHCP server (Router with DHCP details) via L2 path (Broadcast)
+  let dhcpServer = null;
+  for (const node of nodes) {
+    if (node.type === 'router' && node.details && node.details.dhcp) {
+      // Must be reachable via L2 (DHCP Discover is a broadcast)
+      const path = findL2Path(nodes, links, sourceId, node.id);
+      if (path) {
+        dhcpServer = node;
+        break;
+      }
+    }
+  }
+
+  if (dhcpServer) {
+    // Parse range e.g. "192.168.1.100 - 192.168.1.200"
+    const range = dhcpServer.details.dhcp.split('-');
+    let newIp = "192.168.1.150"; // default fallback
+    if (range.length === 2) {
+       const start = range[0].trim();
+       const endParts = start.split('.');
+       const lastOctet = Math.floor(Math.random() * 100) + 100; // Fake random in range
+       endParts[3] = lastOctet;
+       newIp = endParts.join('.');
+    }
+    
+    // Update node
+    sourceNode.ip = newIp;
+    sourceNode.subnet = dhcpServer.subnet;
+    sourceNode.gateway = dhcpServer.ip;
+    
+    return { success: true, ip: newIp, subnet: dhcpServer.subnet, gateway: dhcpServer.ip };
+  } else {
+    // APIPA
+    const apippa = `169.254.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+    sourceNode.ip = apippa;
+    sourceNode.subnet = "255.255.0.0";
+    sourceNode.gateway = "0.0.0.0";
+    return { success: false, ip: apippa, subnet: "255.255.0.0", gateway: "0.0.0.0", message: "An error occurred while renewing interface Local Area Connection : unable to contact your DHCP server." };
+  }
+}

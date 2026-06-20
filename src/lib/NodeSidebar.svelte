@@ -138,6 +138,10 @@
             </div>
           {:else if topology.selectedNode.type === 'server'}
             <div class="form-group">
+              <label for="node-domain">Domain Name</label>
+              <input id="node-domain" type="text" bind:value={topology.selectedNode.details.domain} placeholder="e.g. srv.company.com" />
+            </div>
+            <div class="form-group">
               <label for="node-os">Operating System</label>
               <input id="node-os" type="text" bind:value={topology.selectedNode.details.os} placeholder="e.g. Ubuntu 22.04" />
             </div>

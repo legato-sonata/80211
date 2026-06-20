@@ -1,6 +1,6 @@
 <script>
   import { getTopology } from './context.js';
-  import { simulatePing, simulateTracert } from './SimulationEngine.js';
+  import { simulatePing, simulateTracert, simulateNslookup, simulateDhcp } from './SimulationEngine.js';
   import X from '@lucide/svelte/icons/x';
   
   export let node = null;
@@ -34,8 +34,17 @@
       const program = args[0].toLowerCase();
 
       if (program === 'ipconfig') {
-        printLine(' ');
-        printLine('Windows IP Configuration');
+        if (args[1] === '/renew') {
+          printLine(' ');
+          printLine('Windows IP Configuration');
+          printLine(' ');
+          const result = simulateDhcp(topology, node.id);
+          if (!result.success) {
+            printLine(result.message);
+            printLine(' ');
+          }
+          // Fall through to print the new config
+        }
         printLine(' ');
         printLine('Ethernet adapter Local Area Connection:');
         printLine(' ');
@@ -44,6 +53,28 @@
         printLine(`   Subnet Mask . . . . . . . . . . . : ${node.subnet || '0.0.0.0'}`);
         printLine(`   Default Gateway . . . . . . . . . : ${node.gateway || '0.0.0.0'}`);
         printLine(' ');
+      } else if (program === 'nslookup') {
+        const domain = args[1];
+        if (!domain) {
+          printLine('Default Server:  UnKnown');
+          printLine('Address:  192.168.1.1');
+          printLine('');
+          printLine('> (Interactive mode not supported)');
+          return;
+        }
+        const result = simulateNslookup(topology, node.id, domain);
+        if (result.success) {
+          printLine(`Server:  ${result.server}`);
+          printLine(`Address:  ${result.address}`);
+          printLine('');
+          printLine(`Name:    ${domain}`);
+          printLine(`Address:  ${result.ip}`);
+        } else {
+          printLine(`Server:  UnKnown`);
+          printLine(`Address:  192.168.1.1`);
+          printLine('');
+          printLine(result.message);
+        }
       } else if (program === 'ping') {
         const targetIp = args[1];
         if (!targetIp) {
