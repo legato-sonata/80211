@@ -12,13 +12,14 @@
   
   let terminalContainer;
 
+  $effect(() => {
+    if (outputLines.length >= 0 && terminalContainer) {
+      terminalContainer.scrollTop = terminalContainer.scrollHeight;
+    }
+  });
+
   function printLine(line) {
     outputLines = [...outputLines, line];
-    setTimeout(() => {
-      if (terminalContainer) {
-        terminalContainer.scrollTop = terminalContainer.scrollHeight;
-      }
-    }, 10);
   }
 
   function focusOnMount(el) {
@@ -179,8 +180,10 @@
     z-index: 100;
   }
   .modal-content {
-    width: 600px;
-    height: 400px;
+    width: 90%;
+    max-width: 550px;
+    height: 60vh;
+    max-height: 400px;
     background: #1e1e1e;
     border-radius: 8px;
     display: flex;
