@@ -145,7 +145,9 @@
   }
 </script>
 
-<div class="modal-backdrop" onkeydown={(e) => e.key === 'Escape' && onClose()}>
+<svelte:window onkeydown={(e) => e.key === 'Escape' && onClose()} />
+
+<div class="modal-backdrop">
   <div class="modal-content" onpointerdown={(e) => e.stopPropagation()} role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="terminal-title">
     <header class="modal-header">
       <h3 id="terminal-title">Terminal - {node.label}</h3>
