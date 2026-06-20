@@ -21,6 +21,10 @@
     }, 10);
   }
 
+  function focusOnMount(el) {
+    el.focus();
+  }
+
   function handleCommand(e) {
     e.preventDefault();
     const cmd = input.trim();
@@ -141,7 +145,7 @@
 </script>
 
 <div class="modal-backdrop" onpointerdown={onClose} role="button" tabindex="0" onkeydown={(e) => e.key === 'Escape' && onClose()} aria-label="Close modal">
-  <div class="modal-content" onpointerdown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="terminal-title">
+  <div class="modal-content" onpointerdown={(e) => e.stopPropagation()} role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="terminal-title">
     <header class="modal-header">
       <h3 id="terminal-title">Command Prompt - {node.label}</h3>
       <button class="icon-btn" onclick={onClose} aria-label="Close">
@@ -155,7 +159,7 @@
       {/each}
       <form class="term-input-line" onsubmit={handleCommand}>
         <span class="prompt">C:\Users\{node.label}&gt;</span>
-        <input id="term-input" type="text" bind:value={input} autocomplete="off" spellcheck="false" autofocus />
+        <input id="term-input" type="text" bind:value={input} oninput={() => input = input.toLowerCase()} autocomplete="off" spellcheck="false" use:focusOnMount />
       </form>
     </div>
   </div>
@@ -212,7 +216,8 @@
     background: #000;
     color: #ccc;
     font-family: monospace;
-    font-size: 14px;
+    font-size: 12px;
+    line-height: 1.4;
     padding: 10px;
     overflow-y: auto;
     cursor: text;
@@ -234,7 +239,7 @@
     border: none;
     color: #fff;
     font-family: monospace;
-    font-size: 14px;
+    font-size: 12px;
     flex: 1;
     outline: none;
   }
