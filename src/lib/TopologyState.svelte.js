@@ -9,6 +9,7 @@ export class TopologyState {
   linkSourceId = $state(null);
   isUIHidden = $state(false);
   isReportOpen = $state(false);
+  isTerminalOpen = $state(false);
 
   history = $state([]);
   historyIndex = $state(-1);
@@ -69,6 +70,7 @@ export class TopologyState {
     this.selectedNodeId = null;
     this.selectedLinkId = null;
     this.isLinkingMode = false;
+    this.isTerminalOpen = false;
     this.history = [];
     this.historyIndex = -1;
     this.pushHistory();
@@ -82,6 +84,7 @@ export class TopologyState {
     this.selectedNodeId = null;
     this.selectedLinkId = null;
     this.isLinkingMode = false;
+    this.isTerminalOpen = false;
     this.isRecording = true;
   }
 
@@ -340,6 +343,7 @@ export class TopologyState {
         this.selectedNodeId = null;
         this.selectedLinkId = null;
         this.isLinkingMode = false;
+        this.isTerminalOpen = false;
         this.history = [];
         this.historyIndex = -1;
         this.pushHistory();

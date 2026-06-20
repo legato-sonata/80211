@@ -2,6 +2,7 @@
   import { getTopology } from './context.js';
   import X from '@lucide/svelte/icons/x';
   import Ticket from '@lucide/svelte/icons/ticket';
+  import Terminal from '@lucide/svelte/icons/terminal';
 
   const topology = getTopology();
 
@@ -238,6 +239,10 @@
       {:else}
         <div class="footer-actions">
           {#if topology.selectedNode}
+            <button class="btn terminal-btn" onclick={() => topology.isTerminalOpen = true} aria-label="Open Terminal">
+              <Terminal size={16} strokeWidth={2} />
+              CLI
+            </button>
             <button class="btn ticket-btn" onclick={openTicket} aria-label="Open Ticket">
               <Ticket size={16} strokeWidth={2} />
               Ticket
@@ -399,6 +404,17 @@
 
   .ticket-btn:hover {
     background: #e0e7ff;
+  }
+
+  .terminal-btn {
+    color: #059669;
+    background: #d1fae5;
+    border-color: #a7f3d0;
+    font-weight: 600;
+  }
+
+  .terminal-btn:hover {
+    background: #bbf7d0;
   }
 
   @media (max-width: 768px) {

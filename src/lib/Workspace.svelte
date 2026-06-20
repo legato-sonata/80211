@@ -5,6 +5,7 @@
   import Toolbar from '$lib/Toolbar.svelte';
   import ActionSidebar from '$lib/ActionSidebar.svelte';
   import ReportModal from '$lib/ReportModal.svelte';
+  import TerminalModal from '$lib/TerminalModal.svelte';
 
   import { untrack } from 'svelte';
 
@@ -20,6 +21,9 @@
     <NodeSidebar />
   {/if}
   <ReportModal />
+  {#if topology.isTerminalOpen && topology.selectedNode}
+    <TerminalModal node={topology.selectedNode} onClose={() => topology.isTerminalOpen = false} />
+  {/if}
 </div>
 
 <style>
