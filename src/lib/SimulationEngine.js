@@ -124,3 +124,31 @@ export function simulatePing(topology, sourceId, targetIp) {
 
   return { success: true, message: `Reply from ${targetIp}: bytes=32 time=2ms TTL=64`, path: [...pathToGateway, ...routerPath.slice(1)] };
 }
+
+export function simulateTracert(topology, sourceId, targetIp) {
+  const pingResult = simulatePing(topology, sourceId, targetIp);
+  if (!pingResult.success && !pingResult.path) {
+    // If there's absolutely no path or a failure right away
+    return { success: false, error: pingResult.message };
+  }
+
+  const path = pingResult.path || [];
+  const hops = [];
+  
+  // Filter the path to only include L3 hops (Routers) and the final destination
+  for (let i = 0; i < path.length; i++) {
+    const nodeId = path[i];
+    const node = topology.nodes.find(n => n.id === nodeId);
+    if (!node) continue;
+    
+    // Include routers and the final destination
+    if (node.type === 'router' || node.ip === targetIp) {
+      // Don't include the source node itself if it's somehow in the loop
+      if (node.id !== sourceId) {
+        hops.push({ ip: node.ip, label: node.label });
+      }
+    }
+  }
+
+  return { success: true, hops };
+}

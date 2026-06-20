@@ -1,6 +1,6 @@
 <script>
   import { getTopology } from './context.js';
-  import { simulatePing } from './SimulationEngine.js';
+  import { simulatePing, simulateTracert } from './SimulationEngine.js';
   import X from '@lucide/svelte/icons/x';
   
   export let node = null;
@@ -68,8 +68,37 @@
           if (result.success && result.path) {
              // We can even highlight the path here if we want!
              // For now, let's just log.
-          }
           count++;
+        }, 1000);
+      } else if (program === 'tracert' || program === 'traceroute') {
+        const targetIp = args[1];
+        if (!targetIp) {
+          printLine(`Usage: ${program} <target_ip>`);
+          return;
+        }
+        printLine(`Tracing route to ${targetIp}`);
+        printLine('over a maximum of 30 hops:');
+        printLine(' ');
+
+        const result = simulateTracert(topology, node.id, targetIp);
+        if (!result.success) {
+          printLine(`  1    *        *        *     ${result.error || 'Destination host unreachable.'}`);
+          printLine(' ');
+          printLine('Trace complete.');
+          return;
+        }
+
+        let hopIndex = 0;
+        const interval = setInterval(() => {
+          if (hopIndex >= result.hops.length) {
+            clearInterval(interval);
+            printLine(' ');
+            printLine('Trace complete.');
+            return;
+          }
+          const hop = result.hops[hopIndex];
+          printLine(`  ${(hopIndex + 1).toString().padEnd(2, ' ')}   <1 ms    <1 ms    <1 ms  ${hop.ip} [${hop.label}]`);
+          hopIndex++;
         }, 1000);
       } else if (program === 'cls' || program === 'clear') {
         outputLines = [];
