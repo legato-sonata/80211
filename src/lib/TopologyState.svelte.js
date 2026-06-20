@@ -17,14 +17,13 @@ export class TopologyState {
 
   constructor() {
     this.initialState = {
-      nodes: [
-        { id: 'n1', type: 'router', label: 'Main Gateway', ip: '192.168.1.1', status: 'online', details: { dhcp: '192.168.1.100 - 192.168.1.200', firmware: 'v2.4.1', model: 'ER-X' }, x: -50, y: -200 },
-        { id: 'n2', type: 'switch', label: 'Core Switch', ip: '192.168.1.2', status: 'online', details: { ports: 24, poe: true, model: 'USW-24-PoE' }, x: -50, y: -50 },
-        { id: 'n3', type: 'pos', label: 'Register 1', ip: '192.168.1.101', status: 'online', details: { mac: '00:1A:2B:3C:4D:5E', location: 'Front Counter' }, x: -250, y: 150 },
-        { id: 'n4', type: 'pos', label: 'Register 2', ip: '192.168.1.102', status: 'warning', details: { mac: '00:1A:2B:3C:4D:5F', location: 'Front Counter', error: 'High Latency detected' }, x: -50, y: 150 },
-        { id: 'n5', type: 'ap', label: 'Ceiling AP (Floor)', ip: '192.168.1.10', status: 'offline', details: { mac: '00:1A:2B:3C:4D:60', ssid: 'Store_Guest' }, x: 150, y: 150 },
-        { id: 'n6', type: 'camera', label: 'CCTV Front Door', ip: '192.168.1.20', status: 'online', details: { mac: '00:1A:2B:3C:4D:61', resolution: '1080p' }, x: 150, y: -200 },
-        { id: 'n7', type: 'printer', label: 'Kitchen Printer', ip: '192.168.1.50', status: 'warning', details: { mac: '00:1A:2B:3C:4D:62', ink: 'Low' }, x: -250, y: -50 }
+        { id: 'n1', type: 'router', label: 'Main Gateway', ip: '192.168.1.1', subnet: '255.255.255.0', gateway: '0.0.0.0', status: 'online', details: { dhcp: '192.168.1.100 - 192.168.1.200', firmware: 'v2.4.1', model: 'ER-X' }, x: -50, y: -200 },
+        { id: 'n2', type: 'switch', label: 'Core Switch', ip: '192.168.1.2', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { ports: 24, poe: true, model: 'USW-24-PoE' }, x: -50, y: -50 },
+        { id: 'n3', type: 'pos', label: 'Register 1', ip: '192.168.1.101', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { mac: '00:1A:2B:3C:4D:5E', location: 'Front Counter' }, x: -250, y: 150 },
+        { id: 'n4', type: 'pos', label: 'Register 2', ip: '192.168.1.102', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'warning', details: { mac: '00:1A:2B:3C:4D:5F', location: 'Front Counter', error: 'High Latency detected' }, x: -50, y: 150 },
+        { id: 'n5', type: 'ap', label: 'Ceiling AP (Floor)', ip: '192.168.1.10', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'offline', details: { mac: '00:1A:2B:3C:4D:60', ssid: 'Store_Guest' }, x: 150, y: 150 },
+        { id: 'n6', type: 'camera', label: 'CCTV Front Door', ip: '192.168.1.20', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { mac: '00:1A:2B:3C:4D:61', resolution: '1080p' }, x: 150, y: -200 },
+        { id: 'n7', type: 'printer', label: 'Kitchen Printer', ip: '192.168.1.50', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'warning', details: { mac: '00:1A:2B:3C:4D:62', ink: 'Low' }, x: -250, y: -50 }
       ],
       links: [
         { id: 'l1', source: 'n1', target: 'n2', type: 'fiber', status: 'active' },
@@ -136,6 +135,8 @@ export class TopologyState {
       type,
       label: `New ${type.toUpperCase()}`,
       ip: '0.0.0.0',
+      subnet: '255.255.255.0',
+      gateway: '0.0.0.0',
       status: 'online',
       details: {},
       x: window.innerWidth / 2 - 50 + Math.random() * 100,
