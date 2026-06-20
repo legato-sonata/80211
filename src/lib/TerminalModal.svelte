@@ -158,10 +158,10 @@
       {#each outputLines as line}
         <div class="term-line">{line}</div>
       {/each}
-      <form class="term-input-line" onsubmit={handleCommand} autocomplete="off">
+      <div class="term-input-line">
         <span class="prompt">C:\Users\{node.label}&gt;</span>
-        <input id="term-input" type="text" bind:value={input} oninput={() => input = input.toLowerCase()} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-form-type="other" data-1p-ignore="true" data-lpignore="true" use:focusOnMount />
-      </form>
+        <input id="term-input" type="text" bind:value={input} oninput={() => input = input.toLowerCase()} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" name="search" onkeydown={(e) => e.key === 'Enter' && handleCommand(e)} use:focusOnMount />
+      </div>
     </div>
   </div>
 </div>
