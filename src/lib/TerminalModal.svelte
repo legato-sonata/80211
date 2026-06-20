@@ -3,8 +3,7 @@
   import { simulatePing, simulateTracert, simulateNslookup, simulateDhcp } from './SimulationEngine.js';
   import X from '@lucide/svelte/icons/x';
   
-  export let node = null;
-  export let onClose = () => {};
+  let { node = null, onClose = () => {} } = $props();
 
   const topology = getTopology();
   
@@ -99,6 +98,7 @@
           if (result.success && result.path) {
              // We can even highlight the path here if we want!
              // For now, let's just log.
+          }
           count++;
         }, 1000);
       } else if (program === 'tracert' || program === 'traceroute') {
