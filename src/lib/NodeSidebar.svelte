@@ -11,6 +11,7 @@
   import HardDrive from '@lucide/svelte/icons/hard-drive';
   import Camera from '@lucide/svelte/icons/camera';
   import Network from '@lucide/svelte/icons/network';
+  import Terminal from '@lucide/svelte/icons/terminal';
 
   const topology = getTopology();
 
