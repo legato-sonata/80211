@@ -1,7 +1,6 @@
 <script>
   import { getTopology } from './context.js';
   import X from '@lucide/svelte/icons/x';
-  import Ticket from '@lucide/svelte/icons/ticket';
   import Terminal from '@lucide/svelte/icons/terminal';
 
   const topology = getTopology();
@@ -28,12 +27,6 @@
     topology.pushHistory();
   }
 
-  function openTicket() {
-    const node = topology.selectedNode;
-    const subject = `IT Support Ticket: ${node.label} (${node.type.toUpperCase()})`;
-    const body = `[SIMULATED EMAIL DRAFT]\n\nTo: support@company.com\nSubject: ${subject}\n\nDevice: ${node.label}\nIP Address: ${node.ip}\nSerial/MAC: ${node.details.serial || '-'}\nStatus: ${node.status.toUpperCase()}\n\nPlease describe the issue below:\n[Type issue here...]`;
-    alert(body);
-  }
 </script>
 
 {#if topology.selectedNode || topology.selectedLink}
@@ -247,10 +240,6 @@
               <Terminal size={16} strokeWidth={2} />
               CLI
             </button>
-            <button class="btn ticket-btn" onclick={openTicket} aria-label="Open Ticket">
-              <Ticket size={16} strokeWidth={2} />
-              Ticket
-            </button>
           {/if}
           <button class="btn" onclick={handleDelete}>Delete</button>
           <button class="btn primary" onclick={handleEdit}>Edit</button>
@@ -399,26 +388,15 @@
     gap: 6px;
   }
 
-  .ticket-btn {
-    color: #4f46e5;
-    background: #eef2ff;
-    border-color: #c7d2fe;
-    font-weight: 600;
-  }
-
-  .ticket-btn:hover {
-    background: #e0e7ff;
-  }
-
   .terminal-btn {
-    color: #059669;
-    background: #d1fae5;
-    border-color: #a7f3d0;
+    color: #000;
+    background: #fff;
+    border: 1px solid #000;
     font-weight: 600;
   }
 
   .terminal-btn:hover {
-    background: #bbf7d0;
+    background: #f0f0f0;
   }
 
   @media (max-width: 768px) {
