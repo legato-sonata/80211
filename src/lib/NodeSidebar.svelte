@@ -35,14 +35,11 @@
       formatted += val[i];
     }
     
-    // Allow up to 17 characters (e.g. 00:11:22:33:44:55)
     formatted = formatted.substring(0, 17);
 
-    if (topology.selectedNode.details.serial !== formatted) {
-      topology.selectedNode.details.serial = formatted;
-      // Force input value update to maintain cursor stability
-      e.target.value = formatted;
-    }
+    // ALWAYS update DOM to strip invalid chars instantly
+    e.target.value = formatted;
+    topology.selectedNode.details.serial = formatted;
   }
 
   function formatIpAddress(e, field) {
@@ -63,10 +60,9 @@
     val = boundedParts.join('.');
     if (endsWithDot && boundedParts.length < 4) val += '.';
 
-    if (topology.selectedNode[field] !== val) {
-      topology.selectedNode[field] = val;
-      e.target.value = val;
-    }
+    // ALWAYS update DOM to strip invalid chars instantly
+    e.target.value = val;
+    topology.selectedNode[field] = val;
   }
 
 </script>
@@ -117,15 +113,15 @@
           {#if topology.selectedNode.ipAllocation !== 'dhcp'}
             <div class="form-group">
               <label for="node-ip">IP Address</label>
-              <input id="node-ip" type="text" value={topology.selectedNode.ip} oninput={(e) => formatIpAddress(e, 'ip')} placeholder="192.168.1.x" />
+              <input id="node-ip" type="text" inputmode="decimal" value={topology.selectedNode.ip} oninput={(e) => formatIpAddress(e, 'ip')} placeholder="192.168.1.x" />
             </div>
             <div class="form-group">
               <label for="node-subnet">Subnet Mask</label>
-              <input id="node-subnet" type="text" value={topology.selectedNode.subnet} oninput={(e) => formatIpAddress(e, 'subnet')} placeholder="255.255.255.0" />
+              <input id="node-subnet" type="text" inputmode="decimal" value={topology.selectedNode.subnet} oninput={(e) => formatIpAddress(e, 'subnet')} placeholder="255.255.255.0" />
             </div>
             <div class="form-group">
               <label for="node-gateway">Default Gateway</label>
-              <input id="node-gateway" type="text" value={topology.selectedNode.gateway} oninput={(e) => formatIpAddress(e, 'gateway')} placeholder="192.168.1.1" />
+              <input id="node-gateway" type="text" inputmode="decimal" value={topology.selectedNode.gateway} oninput={(e) => formatIpAddress(e, 'gateway')} placeholder="192.168.1.1" />
             </div>
           {/if}
           {#if topology.selectedNode.ipAllocation === 'dhcp'}
