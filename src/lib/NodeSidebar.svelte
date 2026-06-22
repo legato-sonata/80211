@@ -202,9 +202,15 @@
                     </div>
                     <span class="node-label">{peer?.label || 'Unknown'}</span>
                   </div>
-                  <div class="cable-view" class:offline={link.status === 'offline'} style="order: 2;">
-                    <div class="cable-line"></div>
-                    <span class="cable-text">{link.type} • {link.status}</span>
+                  <div class="cable-view" style="order: 2;">
+                    <div 
+                      class="cable-line" 
+                      style="border-top-color: {link.status === 'offline' ? '#dc2626' : link.status === 'warning' ? '#f59e0b' : 'var(--text-primary)'}; border-top-style: {link.type === 'wireless' ? 'dashed' : 'solid'};"
+                    ></div>
+                    <span 
+                      class="cable-text" 
+                      style="color: {link.status === 'offline' ? '#dc2626' : link.status === 'warning' ? '#f59e0b' : 'var(--text-secondary)'};"
+                    >{link.type} • {link.status}</span>
                   </div>
                   <div class="node-wrapper" style="order: {isSource ? 1 : 3};">
                     <div class="node-icon target" class:offline={topology.selectedNode.status === 'offline'} title={topology.selectedNode.label}>
@@ -676,12 +682,8 @@
 
   .cable-line {
     align-self: stretch;
-    border-top: 2px solid var(--primary);
+    border-top-width: 2px;
     margin-bottom: 4px;
-  }
-
-  .cable-view.offline .cable-line {
-    border-top: 2px dashed #ef4444;
   }
 
   .cable-text {
