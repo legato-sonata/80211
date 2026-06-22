@@ -45,20 +45,17 @@
   function formatIpAddress(e, field) {
     let val = e.target.value.replace(/[^0-9.]/g, '');
     val = val.replace(/\.+/g, '.'); // collapse multiple dots
+    if (val.startsWith('.')) val = val.substring(1);
     
-    const parts = val.split('.');
-    if (parts.length > 4) val = parts.slice(0, 4).join('.');
+    let parts = val.split('.');
+    if (parts.length > 4) parts = parts.slice(0, 4);
     
-    const boundedParts = val.split('.').map(p => {
-      if (!p) return p;
+    val = parts.map(p => {
+      if (p === '') return p;
       let num = parseInt(p, 10);
       if (num > 255) return '255';
-      return num.toString();
-    });
-    
-    const endsWithDot = val.endsWith('.');
-    val = boundedParts.join('.');
-    if (endsWithDot && boundedParts.length < 4) val += '.';
+      return p; // Keep original to allow typing e.g., '192' without stripping partial '0' initially
+    }).join('.');
 
     // ALWAYS update DOM to strip invalid chars instantly
     e.target.value = val;
@@ -91,7 +88,7 @@
           </div>
           <div class="form-group">
             <label for="node-serial">Serial / MAC Address</label>
-            <input id="node-serial" type="text" value={topology.selectedNode.details.serial || ''} oninput={formatMacAddress} placeholder="e.g. 00:1A:2B:3C:4D:5E" maxlength="17" />
+            <input id="node-serial" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.details.serial || ''} oninput={formatMacAddress} placeholder="e.g. 00:1A:2B:3C:4D:5E" maxlength="17" />
           </div>
           <div class="form-group">
             <label for="node-purchase-date">Purchase Date</label>
@@ -113,15 +110,15 @@
           {#if topology.selectedNode.ipAllocation !== 'dhcp'}
             <div class="form-group">
               <label for="node-ip">IP Address</label>
-              <input id="node-ip" type="text" inputmode="decimal" value={topology.selectedNode.ip} oninput={(e) => formatIpAddress(e, 'ip')} placeholder="192.168.1.x" />
+              <input id="node-ip" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.ip} oninput={(e) => formatIpAddress(e, 'ip')} placeholder="192.168.1.x" />
             </div>
             <div class="form-group">
               <label for="node-subnet">Subnet Mask</label>
-              <input id="node-subnet" type="text" inputmode="decimal" value={topology.selectedNode.subnet} oninput={(e) => formatIpAddress(e, 'subnet')} placeholder="255.255.255.0" />
+              <input id="node-subnet" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.subnet} oninput={(e) => formatIpAddress(e, 'subnet')} placeholder="255.255.255.0" />
             </div>
             <div class="form-group">
               <label for="node-gateway">Default Gateway</label>
-              <input id="node-gateway" type="text" inputmode="decimal" value={topology.selectedNode.gateway} oninput={(e) => formatIpAddress(e, 'gateway')} placeholder="192.168.1.1" />
+              <input id="node-gateway" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.gateway} oninput={(e) => formatIpAddress(e, 'gateway')} placeholder="192.168.1.1" />
             </div>
           {/if}
           {#if topology.selectedNode.ipAllocation === 'dhcp'}
