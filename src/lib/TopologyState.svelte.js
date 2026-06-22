@@ -185,7 +185,14 @@ export class TopologyState {
       const target = this.nodes.find(n => n.id === link.target);
       if (!source || !target) return;
 
-      if (isValidIp(source.ip) && isValidIp(target.ip)) {
+      const sourceAlloc = source.ipAllocation || 'static';
+      const targetAlloc = target.ipAllocation || 'static';
+
+      if (sourceAlloc === 'dhcp' || targetAlloc === 'dhcp') {
+        if (link.status === 'warning') {
+          link.status = 'active';
+        }
+      } else if (isValidIp(source.ip) && isValidIp(target.ip)) {
         const matchSourceMask = isSameSubnet(source.ip, target.ip, source.subnet);
         const matchTargetMask = isSameSubnet(source.ip, target.ip, target.subnet);
         
@@ -204,12 +211,14 @@ export class TopologyState {
 
   addNode(type) {
     this.isUIHidden = false;
+    const isEndDevice = ['computer', 'pos', 'camera', 'printer'].includes(type);
     const id = `n${Date.now()}`;
     const newNode = {
       id,
       type,
       label: `New ${type.toUpperCase()}`,
-      ip: '0.0.0.0',
+      ipAllocation: isEndDevice ? 'dhcp' : 'static',
+      ip: isEndDevice ? 'Auto' : '0.0.0.0',
       subnet: '255.255.255.0',
       gateway: '0.0.0.0',
       status: 'online',

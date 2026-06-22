@@ -62,17 +62,26 @@
           <div class="divider"></div>
           <p class="section-title">Network Configuration</p>
           <div class="form-group">
-            <label for="node-ip">IP Address</label>
-            <input id="node-ip" type="text" bind:value={topology.selectedNode.ip} />
+            <label for="node-allocation">IP Allocation</label>
+            <select id="node-allocation" bind:value={topology.selectedNode.ipAllocation}>
+              <option value="static">Static IP</option>
+              <option value="dhcp">DHCP (Auto)</option>
+            </select>
           </div>
-          <div class="form-group">
-            <label for="node-subnet">Subnet Mask</label>
-            <input id="node-subnet" type="text" bind:value={topology.selectedNode.subnet} />
-          </div>
-          <div class="form-group">
-            <label for="node-gateway">Default Gateway</label>
-            <input id="node-gateway" type="text" bind:value={topology.selectedNode.gateway} />
-          </div>
+          {#if topology.selectedNode.ipAllocation !== 'dhcp'}
+            <div class="form-group">
+              <label for="node-ip">IP Address</label>
+              <input id="node-ip" type="text" bind:value={topology.selectedNode.ip} />
+            </div>
+            <div class="form-group">
+              <label for="node-subnet">Subnet Mask</label>
+              <input id="node-subnet" type="text" bind:value={topology.selectedNode.subnet} />
+            </div>
+            <div class="form-group">
+              <label for="node-gateway">Default Gateway</label>
+              <input id="node-gateway" type="text" bind:value={topology.selectedNode.gateway} />
+            </div>
+          {/if}
           <div class="form-group">
             <label for="node-status">Status</label>
             <select id="node-status" bind:value={topology.selectedNode.status}>
@@ -171,17 +180,28 @@
             <span class="info-value">{topology.selectedNode.type}</span>
           </div>
           <div class="info-group">
-            <span class="info-label">IP Address</span>
-            <span class="info-value">{topology.selectedNode.ip}</span>
+            <span class="info-label">Allocation</span>
+            <span class="info-value">{topology.selectedNode.ipAllocation === 'dhcp' ? 'DHCP' : 'Static'}</span>
           </div>
-          <div class="info-group">
-            <span class="info-label">Subnet Mask</span>
-            <span class="info-value">{topology.selectedNode.subnet || '-'}</span>
-          </div>
-          <div class="info-group">
-            <span class="info-label">Default Gateway</span>
-            <span class="info-value">{topology.selectedNode.gateway || '-'}</span>
-          </div>
+          {#if topology.selectedNode.ipAllocation !== 'dhcp'}
+            <div class="info-group">
+              <span class="info-label">IP Address</span>
+              <span class="info-value">{topology.selectedNode.ip}</span>
+            </div>
+            <div class="info-group">
+              <span class="info-label">Subnet Mask</span>
+              <span class="info-value">{topology.selectedNode.subnet || '-'}</span>
+            </div>
+            <div class="info-group">
+              <span class="info-label">Default Gateway</span>
+              <span class="info-value">{topology.selectedNode.gateway || '-'}</span>
+            </div>
+          {:else}
+            <div class="info-group">
+              <span class="info-label">IP Address</span>
+              <span class="info-value text-muted">Auto Assigned</span>
+            </div>
+          {/if}
           <div class="info-group">
             <span class="info-label">Status</span>
             <span class="info-value">{topology.selectedNode.status}</span>
