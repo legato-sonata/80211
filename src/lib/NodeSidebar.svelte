@@ -184,7 +184,7 @@
           <div class="connections-preview">
             <p class="section-title">Direct Connections</p>
             <div class="connections-list">
-              {#each connectedPeers as {peer, link}}
+              {#each connectedPeers as {peer, link, isSource}}
                 {@const PeerIcon = getIcon(peer?.type)}
                 {@const TargetIcon = getIcon(topology.selectedNode.type)}
                 <div class="connection-item">
@@ -196,18 +196,18 @@
                     tabindex="0"
                     onclick={() => { if (peer) topology.selectNode(peer.id); }}
                     onkeydown={(e) => { if (e.key === 'Enter' && peer) topology.selectNode(peer.id); }}
-                    style="cursor: pointer; transition: transform 0.15s ease;"
+                    style="cursor: pointer; transition: transform 0.15s ease; order: {isSource ? 3 : 1};"
                     onpointerdown={(e) => e.currentTarget.style.transform = 'scale(0.9)'}
                     onpointerup={(e) => e.currentTarget.style.transform = 'scale(1)'}
                     onpointerleave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                   >
                     <PeerIcon size={16} />
                   </div>
-                  <div class="cable-view" class:offline={link.status === 'offline'}>
+                  <div class="cable-view" class:offline={link.status === 'offline'} style="order: 2;">
                     <div class="cable-line"></div>
                     <span class="cable-text">{link.type} • {link.status}</span>
                   </div>
-                  <div class="node-icon target" class:offline={topology.selectedNode.status === 'offline'} title={topology.selectedNode.label}>
+                  <div class="node-icon target" class:offline={topology.selectedNode.status === 'offline'} title={topology.selectedNode.label} style="order: {isSource ? 1 : 3};">
                     <TargetIcon size={16} />
                   </div>
                 </div>
