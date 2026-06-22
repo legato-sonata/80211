@@ -178,16 +178,18 @@
             <p class="section-title">Direct Connections</p>
             <div class="connections-list">
               {#each connectedPeers as {peer, link}}
+                {@const PeerIcon = getIcon(peer?.type)}
+                {@const TargetIcon = getIcon(topology.selectedNode.type)}
                 <div class="connection-item">
                   <div class="node-icon peer" class:offline={peer?.status === 'offline'} title={peer?.label || 'Unknown'}>
-                    <svelte:component this={getIcon(peer?.type)} size={16} />
+                    <PeerIcon size={16} />
                   </div>
                   <div class="cable-view" class:offline={link.status === 'offline'}>
                     <div class="cable-line"></div>
                     <span class="cable-text">{link.type} • {link.status}</span>
                   </div>
                   <div class="node-icon target" class:offline={topology.selectedNode.status === 'offline'} title={topology.selectedNode.label}>
-                    <svelte:component this={getIcon(topology.selectedNode.type)} size={16} />
+                    <TargetIcon size={16} />
                   </div>
                 </div>
               {/each}
