@@ -28,6 +28,13 @@
     return iconMap[type] || Monitor;
   }
 
+  function getDisplayLabel(node) {
+    if (!node) return 'Unknown';
+    if (!node.subtype) return node.label;
+    const map = { dvr: 'DVR', nvr: 'NVR', laser: 'LSR', inkjet: 'INK', thermal: 'THM' };
+    return map[node.subtype] ? `${node.label} (${map[node.subtype]})` : node.label;
+  }
+
   let showAllConnections = $state(false);
 
   $effect(() => {
@@ -207,7 +214,7 @@
   <div class="sidebar-backdrop" onpointerdown={handleClose} role="button" tabindex="0" onkeydown={(e) => e.key === 'Escape' && handleClose()} aria-label="Close sidebar"></div>
   <aside class="sidebar">
     <header class="sidebar-header">
-      <h2>{topology.selectedNode ? topology.selectedNode.label : 'Connection'}</h2>
+      <h2>{topology.selectedNode ? getDisplayLabel(topology.selectedNode) : 'Connection'}</h2>
       <button class="icon-btn" onclick={handleClose} aria-label="Close">
         <X size={20} color="var(--text-primary)" strokeWidth={1.5} />
       </button>
@@ -243,7 +250,7 @@
                         >
                           <UpIcon size={20} color="var(--text-primary)" strokeWidth={1.5} />
                         </div>
-                        <span class="node-label">{row.upstream.peer?.label || 'Unknown'}</span>
+                        <span class="node-label">{getDisplayLabel(row.upstream.peer)}</span>
                       </div>
                       <div class="cable-view" style="color: {upColor};">
                         <svg width="100%" height="12" style="overflow: visible; margin-bottom: 2px;">
@@ -269,10 +276,10 @@
                   {/if}
 
                   <div class="node-wrapper center-node">
-                    <div class="node-icon target" class:offline={topology.selectedNode.status === 'offline'} title={topology.selectedNode.label}>
+                    <div class="node-icon target" class:offline={topology.selectedNode.status === 'offline'} title={getDisplayLabel(topology.selectedNode)}>
                       <TargetIcon size={20} color="var(--text-primary)" strokeWidth={1.5} />
                     </div>
-                    <span class="node-label">{topology.selectedNode.label}</span>
+                    <span class="node-label">{getDisplayLabel(topology.selectedNode)}</span>
                   </div>
 
                   {#if connectionData.hasDown}
@@ -312,7 +319,7 @@
                         >
                           <DownIcon size={20} color="var(--text-primary)" strokeWidth={1.5} />
                         </div>
-                        <span class="node-label">{row.downstream.peer?.label || 'Unknown'}</span>
+                        <span class="node-label">{getDisplayLabel(row.downstream.peer)}</span>
                       </div>
                     {:else}
                       <div class="cable-view empty"></div>

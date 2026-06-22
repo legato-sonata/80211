@@ -252,6 +252,13 @@
     }
   }
 
+  function getDisplayLabel(node) {
+    if (!node) return 'Unknown';
+    if (!node.subtype) return node.label;
+    const map = { dvr: 'DVR', nvr: 'NVR', laser: 'LSR', inkjet: 'INK', thermal: 'THM' };
+    return map[node.subtype] ? `${node.label} (${map[node.subtype]})` : node.label;
+  }
+
   function getStrokePattern(type) {
     if (type === 'wireless') return "6 6";
     return "none";
@@ -334,13 +341,13 @@
           onpointermove={onNodePointerMove}
           onpointerup={(e) => onNodePointerUp(e, node)}
           onpointercancel={(e) => onNodePointerUp(e, node)}
-          aria-label="{node.label} details"
+          aria-label="{getDisplayLabel(node)} details"
         >
           <div class="node-icon">
             <Icon size={28} color="var(--text-primary)" strokeWidth={topology.selectedNodeId === node.id ? 2.5 : 1.5} />
           </div>
           <div class="node-info">
-            <span class="node-label">{node.label}</span>
+            <span class="node-label">{getDisplayLabel(node)}</span>
             <span class="node-ip">{node.ip}</span>
           </div>
         </button>
