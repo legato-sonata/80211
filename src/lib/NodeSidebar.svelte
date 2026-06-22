@@ -245,7 +245,7 @@
                         <span class="node-label">{row.upstream.peer?.label || 'Unknown'}</span>
                       </div>
                       <div class="cable-view">
-                        <div class="cable-line" style="border-top-color: {row.upstream.link.status === 'offline' ? '#dc2626' : row.upstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-primary)'}; border-top-style: {row.upstream.link.type === 'wireless' ? 'dashed' : 'solid'};"></div>
+                        <div class="cable-line" style="color: {row.upstream.link.status === 'offline' ? '#dc2626' : row.upstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-primary)'}; border-top-color: currentColor; border-top-style: {row.upstream.link.type === 'wireless' ? 'dashed' : 'solid'};"></div>
                         <span class="cable-text" style="color: {row.upstream.link.status === 'offline' ? '#dc2626' : row.upstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-secondary)'};">{row.upstream.link.type} • {row.upstream.link.status}</span>
                       </div>
                     {:else}
@@ -265,7 +265,7 @@
                     {#if row.downstream}
                       {@const DownIcon = getIcon(row.downstream.peer?.type)}
                       <div class="cable-view">
-                        <div class="cable-line" style="border-top-color: {row.downstream.link.status === 'offline' ? '#dc2626' : row.downstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-primary)'}; border-top-style: {row.downstream.link.type === 'wireless' ? 'dashed' : 'solid'};"></div>
+                        <div class="cable-line" style="color: {row.downstream.link.status === 'offline' ? '#dc2626' : row.downstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-primary)'}; border-top-color: currentColor; border-top-style: {row.downstream.link.type === 'wireless' ? 'dashed' : 'solid'};"></div>
                         <span class="cable-text" style="color: {row.downstream.link.status === 'offline' ? '#dc2626' : row.downstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-secondary)'};">{row.downstream.link.type} • {row.downstream.link.status}</span>
                       </div>
                       <div class="node-wrapper">
@@ -778,6 +778,17 @@
     align-self: stretch;
     border-top-width: 2px;
     margin-bottom: 4px;
+    position: relative;
+  }
+
+  .cable-line::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: -3px;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 6px solid currentColor;
   }
 
   .cable-text {
