@@ -1,9 +1,47 @@
 <script>
   import { getTopology } from './context.js';
   import X from '@lucide/svelte/icons/x';
-  import Terminal from '@lucide/svelte/icons/terminal';
+  import Server from '@lucide/svelte/icons/server';
+  import Router from '@lucide/svelte/icons/router';
+  import MonitorSmartphone from '@lucide/svelte/icons/monitor-smartphone';
+  import Wifi from '@lucide/svelte/icons/wifi';
+  import CreditCard from '@lucide/svelte/icons/credit-card';
+  import PrinterIcon from '@lucide/svelte/icons/printer';
+  import Monitor from '@lucide/svelte/icons/monitor';
+  import HardDrive from '@lucide/svelte/icons/hard-drive';
+  import Camera from '@lucide/svelte/icons/camera';
+  import Network from '@lucide/svelte/icons/network';
 
   const topology = getTopology();
+
+  const iconMap = {
+    server: Server,
+    router: Router,
+    switch: Network,
+    ap: Wifi,
+    computer: Monitor,
+    pos: CreditCard,
+    printer: PrinterIcon,
+    storage: HardDrive,
+    camera: Camera,
+    mobile: MonitorSmartphone
+  };
+
+  function getIcon(type) {
+    return iconMap[type] || Monitor;
+  }
+
+  let connectedPeers = $derived.by(() => {
+    if (!topology.selectedNode) return [];
+    const nodeId = topology.selectedNode.id;
+    const links = topology.links.filter(l => l.source === nodeId || l.target === nodeId);
+    return links.slice(0, 3).map(link => {
+      const isSource = link.source === nodeId;
+      const peerId = isSource ? link.target : link.source;
+      const peer = topology.nodes.find(n => n.id === peerId);
+      return { peer, link, isSource };
+    });
+  });
 
   let showMacWarning = $state(false);
   let macWarningTimeout;
@@ -135,6 +173,32 @@
 
     <div class="sidebar-content">
       {#if topology.selectedNode}
+        {#if connectedPeers.length > 0}
+          <div class="connections-preview">
+            <p class="section-title">Direct Connections</p>
+            <div class="connections-list">
+              {#each connectedPeers as {peer, link}}
+                <div class="connection-item">
+                  <div class="node-icon peer" class:offline={peer?.status === 'offline'} title={peer?.label || 'Unknown'}>
+                    <svelte:component this={getIcon(peer?.type)} size={16} />
+                  </div>
+                  <div class="cable-view" class:offline={link.status === 'offline'}>
+                    <div class="cable-line"></div>
+                    <span class="cable-text">{link.type} • {link.status}</span>
+                  </div>
+                  <div class="node-icon target" class:offline={topology.selectedNode.status === 'offline'} title={topology.selectedNode.label}>
+                    <svelte:component this={getIcon(topology.selectedNode.type)} size={16} />
+                  </div>
+                </div>
+              {/each}
+            </div>
+            {#if topology.links.filter(l => l.source === topology.selectedNode.id || l.target === topology.selectedNode.id).length > 3}
+              <div class="helper-text text-muted" style="text-align: center; margin-top: 8px;">+ {topology.links.filter(l => l.source === topology.selectedNode.id || l.target === topology.selectedNode.id).length - 3} more connections</div>
+            {/if}
+          </div>
+          <div class="divider"></div>
+        {/if}
+
         {#if topology.isEditing}
           <p class="section-title">Asset Information</p>
           <div class="form-group">
@@ -515,6 +579,70 @@
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-4px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  .connections-preview {
+    margin-bottom: 20px;
+  }
+
+  .connections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .connection-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .node-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--surface-hover);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+  }
+
+  .node-icon.offline {
+    color: var(--text-secondary);
+    opacity: 0.5;
+  }
+
+  .cable-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin: 0 12px;
+  }
+
+  .cable-line {
+    width: 100%;
+    border-top: 2px solid var(--primary);
+    margin-bottom: 4px;
+  }
+
+  .cable-view.offline .cable-line {
+    border-top: 2px dashed #ef4444;
+  }
+
+  .cable-text {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
   }
 
   .sidebar-footer {
