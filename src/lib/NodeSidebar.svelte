@@ -27,6 +27,48 @@
     topology.pushHistory();
   }
 
+  function formatMacAddress(e) {
+    let val = e.target.value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+    let formatted = '';
+    for (let i = 0; i < val.length; i++) {
+      if (i > 0 && i % 2 === 0 && i < 12) formatted += ':';
+      formatted += val[i];
+    }
+    
+    // Allow up to 17 characters (e.g. 00:11:22:33:44:55)
+    formatted = formatted.substring(0, 17);
+
+    if (topology.selectedNode.details.serial !== formatted) {
+      topology.selectedNode.details.serial = formatted;
+      // Force input value update to maintain cursor stability
+      e.target.value = formatted;
+    }
+  }
+
+  function formatIpAddress(e, field) {
+    let val = e.target.value.replace(/[^0-9.]/g, '');
+    val = val.replace(/\.+/g, '.'); // collapse multiple dots
+    
+    const parts = val.split('.');
+    if (parts.length > 4) val = parts.slice(0, 4).join('.');
+    
+    const boundedParts = val.split('.').map(p => {
+      if (!p) return p;
+      let num = parseInt(p, 10);
+      if (num > 255) return '255';
+      return num.toString();
+    });
+    
+    const endsWithDot = val.endsWith('.');
+    val = boundedParts.join('.');
+    if (endsWithDot && boundedParts.length < 4) val += '.';
+
+    if (topology.selectedNode[field] !== val) {
+      topology.selectedNode[field] = val;
+      e.target.value = val;
+    }
+  }
+
 </script>
 
 {#if topology.selectedNode || topology.selectedLink}
@@ -53,7 +95,7 @@
           </div>
           <div class="form-group">
             <label for="node-serial">Serial / MAC Address</label>
-            <input id="node-serial" type="text" bind:value={topology.selectedNode.details.serial} placeholder="e.g. 00:1A:2B:3C:4D" />
+            <input id="node-serial" type="text" value={topology.selectedNode.details.serial || ''} oninput={formatMacAddress} placeholder="e.g. 00:1A:2B:3C:4D:5E" maxlength="17" />
           </div>
           <div class="form-group">
             <label for="node-purchase-date">Purchase Date</label>
@@ -75,15 +117,15 @@
           {#if topology.selectedNode.ipAllocation !== 'dhcp'}
             <div class="form-group">
               <label for="node-ip">IP Address</label>
-              <input id="node-ip" type="text" bind:value={topology.selectedNode.ip} />
+              <input id="node-ip" type="text" value={topology.selectedNode.ip} oninput={(e) => formatIpAddress(e, 'ip')} placeholder="192.168.1.x" />
             </div>
             <div class="form-group">
               <label for="node-subnet">Subnet Mask</label>
-              <input id="node-subnet" type="text" bind:value={topology.selectedNode.subnet} />
+              <input id="node-subnet" type="text" value={topology.selectedNode.subnet} oninput={(e) => formatIpAddress(e, 'subnet')} placeholder="255.255.255.0" />
             </div>
             <div class="form-group">
               <label for="node-gateway">Default Gateway</label>
-              <input id="node-gateway" type="text" bind:value={topology.selectedNode.gateway} />
+              <input id="node-gateway" type="text" value={topology.selectedNode.gateway} oninput={(e) => formatIpAddress(e, 'gateway')} placeholder="192.168.1.1" />
             </div>
           {/if}
           {#if topology.selectedNode.ipAllocation === 'dhcp'}
