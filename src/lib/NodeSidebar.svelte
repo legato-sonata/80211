@@ -226,6 +226,7 @@
                   {#if connectionData.hasUp}
                     {#if row.upstream}
                       {@const UpIcon = getIcon(row.upstream.peer?.type)}
+                      {@const upColor = row.upstream.link.status === 'offline' ? '#dc2626' : row.upstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-primary)'}
                       <div class="node-wrapper">
                         <div 
                           class="node-icon peer" 
@@ -244,9 +245,22 @@
                         </div>
                         <span class="node-label">{row.upstream.peer?.label || 'Unknown'}</span>
                       </div>
-                      <div class="cable-view">
-                        <div class="cable-line" style="color: {row.upstream.link.status === 'offline' ? '#dc2626' : row.upstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-primary)'}; border-top-color: currentColor; border-top-style: {row.upstream.link.type === 'wireless' ? 'dashed' : 'solid'};"></div>
-                        <span class="cable-text" style="color: {row.upstream.link.status === 'offline' ? '#dc2626' : row.upstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-secondary)'};">{row.upstream.link.type} • {row.upstream.link.status}</span>
+                      <div class="cable-view" style="color: {upColor};">
+                        <svg width="100%" height="12" style="overflow: visible; margin-bottom: 2px;">
+                          <defs>
+                            <marker id="arrow-up-{row.upstream.link.id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                              <path d="M 0 1 L 8 5 L 0 9 z" fill={upColor} />
+                            </marker>
+                          </defs>
+                          <line 
+                            x1="0" y1="6" x2="100%" y2="6" 
+                            stroke={upColor} 
+                            stroke-width="2" 
+                            stroke-dasharray={row.upstream.link.type === 'wireless' ? "4 4" : "none"}
+                            marker-end="url(#arrow-up-{row.upstream.link.id})"
+                          />
+                        </svg>
+                        <span class="cable-text" style="color: inherit;">{row.upstream.link.type} • {row.upstream.link.status}</span>
                       </div>
                     {:else}
                       <div class="node-wrapper empty"></div>
@@ -264,9 +278,23 @@
                   {#if connectionData.hasDown}
                     {#if row.downstream}
                       {@const DownIcon = getIcon(row.downstream.peer?.type)}
-                      <div class="cable-view">
-                        <div class="cable-line" style="color: {row.downstream.link.status === 'offline' ? '#dc2626' : row.downstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-primary)'}; border-top-color: currentColor; border-top-style: {row.downstream.link.type === 'wireless' ? 'dashed' : 'solid'};"></div>
-                        <span class="cable-text" style="color: {row.downstream.link.status === 'offline' ? '#dc2626' : row.downstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-secondary)'};">{row.downstream.link.type} • {row.downstream.link.status}</span>
+                      {@const downColor = row.downstream.link.status === 'offline' ? '#dc2626' : row.downstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-primary)'}
+                      <div class="cable-view" style="color: {downColor};">
+                        <svg width="100%" height="12" style="overflow: visible; margin-bottom: 2px;">
+                          <defs>
+                            <marker id="arrow-down-{row.downstream.link.id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                              <path d="M 0 1 L 8 5 L 0 9 z" fill={downColor} />
+                            </marker>
+                          </defs>
+                          <line 
+                            x1="0" y1="6" x2="100%" y2="6" 
+                            stroke={downColor} 
+                            stroke-width="2" 
+                            stroke-dasharray={row.downstream.link.type === 'wireless' ? "4 4" : "none"}
+                            marker-end="url(#arrow-down-{row.downstream.link.id})"
+                          />
+                        </svg>
+                        <span class="cable-text" style="color: inherit;">{row.downstream.link.type} • {row.downstream.link.status}</span>
                       </div>
                       <div class="node-wrapper">
                         <div 
@@ -774,21 +802,9 @@
     margin-top: 15px;
   }
 
-  .cable-line {
-    align-self: stretch;
-    border-top-width: 2px;
-    margin-bottom: 4px;
-    position: relative;
-  }
-
-  .cable-line::after {
-    content: '';
-    position: absolute;
-    right: -2px;
-    top: -3px;
-    border-top: 4px solid transparent;
-    border-bottom: 4px solid transparent;
-    border-left: 6px solid currentColor;
+  .cable-view.empty {
+    opacity: 0;
+    pointer-events: none;
   }
 
   .cable-text {
