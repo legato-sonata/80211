@@ -12,7 +12,7 @@
   import Upload from '@lucide/svelte/icons/upload';
   import Image from '@lucide/svelte/icons/image';
   import FileText from '@lucide/svelte/icons/file-text';
-  import Wand2 from '@lucide/svelte/icons/wand-2';
+  import Activity from '@lucide/svelte/icons/activity';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import Circle from '@lucide/svelte/icons/circle';
   import Network from '@lucide/svelte/icons/network';
@@ -227,9 +227,9 @@
         <div class="menu-section">
           <span class="section-label">Layouts</span>
           <div class="tile-grid">
-            <button class="tile-btn" onclick={() => { menuOpen = false; topology.autoLayout(); }}>
-              <Wand2 size={18} color="var(--text-secondary)" strokeWidth={1.5} />
-              <span class="tile-label">Force</span>
+            <button class="tile-btn" onclick={() => { menuOpen = false; topology.applyHierarchicalLayout(); }}>
+              <Network size={18} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">Tree</span>
             </button>
             <button class="tile-btn" onclick={() => { menuOpen = false; topology.applyGridLayout(); }}>
               <LayoutGrid size={18} color="var(--text-secondary)" strokeWidth={1.5} />
@@ -239,9 +239,9 @@
               <Circle size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">Circle</span>
             </button>
-            <button class="tile-btn" onclick={() => { menuOpen = false; topology.applyHierarchicalLayout(); }}>
-              <Network size={18} color="var(--text-secondary)" strokeWidth={1.5} />
-              <span class="tile-label">Tree</span>
+            <button class="tile-btn" onclick={() => { menuOpen = false; topology.autoLayout(); }}>
+              <Activity size={18} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">Force</span>
             </button>
           </div>
         </div>
