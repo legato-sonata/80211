@@ -175,9 +175,9 @@
 
 {#if topology.isLinkingMode}
   <div class="linking-toast">
-    <span>Tap two nodes to connect</span>
+    <span style="font-size: 0.75rem;">Tap two nodes to connect</span>
     <button class="cancel-btn" onclick={() => topology.toggleLinkingMode()} aria-label="Cancel connection">
-      <X size={16} strokeWidth={2} />
+      <X size={14} strokeWidth={2} />
     </button>
   </div>
 {/if}
@@ -477,7 +477,7 @@
     color: var(--surface);
     width: 24px;
     height: 24px;
-    border-radius: 12px;
+    border-radius: 50%;
     padding: 0;
     cursor: pointer;
   }
