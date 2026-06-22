@@ -49,6 +49,15 @@
     
     formatted = formatted.substring(0, 17);
 
+    // Gboard composition buffer sync trick:
+    // If Gboard allows typing past 17 chars in its internal buffer, 
+    // a synchronous DOM update might be ignored. A next-tick override forces it to flush.
+    if (original.length > 17) {
+      setTimeout(() => {
+        if (e.target) e.target.value = formatted;
+      }, 0);
+    }
+
     // ALWAYS update DOM to strip invalid chars instantly
     e.target.value = formatted;
     topology.selectedNode.details.serial = formatted;
