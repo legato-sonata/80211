@@ -5,6 +5,9 @@
 
   const topology = getTopology();
 
+  let showMacWarning = $state(false);
+  let macWarningTimeout;
+
   // No longer using configText as we directly bind to details properties.
 
   function handleClose() {
@@ -28,7 +31,16 @@
   }
 
   function formatMacAddress(e) {
-    let val = e.target.value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+    const original = e.target.value;
+    let val = original.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+    
+    // Check if an invalid character (not hex and not colon) was just typed
+    if (original.length > val.length && /[^a-fA-F0-9:]/i.test(original)) {
+      showMacWarning = true;
+      clearTimeout(macWarningTimeout);
+      macWarningTimeout = setTimeout(() => showMacWarning = false, 2500);
+    }
+
     let formatted = '';
     for (let i = 0; i < val.length; i++) {
       if (i > 0 && i % 2 === 0 && i < 12) formatted += ':';
@@ -117,7 +129,10 @@
           </div>
           <div class="form-group">
             <label for="node-serial">Serial / MAC Address</label>
-            <input id="node-serial" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.details.serial || ''} oninput={formatMacAddress} placeholder="e.g. 00:1A:2B:3C:4D:5E" maxlength="17" />
+            <input id="node-serial" class={showMacWarning ? 'input-error' : ''} type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.details.serial || ''} oninput={formatMacAddress} placeholder="e.g. 00:1A:2B:3C:4D:5E" maxlength="17" />
+            {#if showMacWarning}
+              <span class="helper-text error-text">Only Hexadecimal (0-9, A-F) allowed!</span>
+            {/if}
           </div>
           <div class="form-group">
             <label for="node-purchase-date">Purchase Date</label>
@@ -461,6 +476,27 @@
   .text-muted {
     font-size: 0.8rem;
     color: var(--text-secondary);
+  }
+
+  .helper-text {
+    font-size: 0.7rem;
+    margin-top: -2px;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .error-text {
+    color: #ef4444;
+    font-weight: 500;
+  }
+
+  .input-error {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .sidebar-footer {
