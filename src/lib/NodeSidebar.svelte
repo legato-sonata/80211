@@ -34,10 +34,16 @@
   let connectedPeers = $derived.by(() => {
     if (!topology.selectedNode) return [];
     const nodeId = topology.selectedNode.id;
-    const links = topology.links.filter(l => l.source === nodeId || l.target === nodeId);
+    const links = topology.links.filter(l => {
+      const srcId = typeof l.source === 'object' ? l.source.id : l.source;
+      const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
+      return srcId === nodeId || tgtId === nodeId;
+    });
     return links.slice(0, 3).map(link => {
-      const isSource = link.source === nodeId;
-      const peerId = isSource ? link.target : link.source;
+      const srcId = typeof link.source === 'object' ? link.source.id : link.source;
+      const tgtId = typeof link.target === 'object' ? link.target.id : link.target;
+      const isSource = srcId === nodeId;
+      const peerId = isSource ? tgtId : srcId;
       const peer = topology.nodes.find(n => n.id === peerId);
       return { peer, link, isSource };
     });
@@ -181,7 +187,19 @@
                 {@const PeerIcon = getIcon(peer?.type)}
                 {@const TargetIcon = getIcon(topology.selectedNode.type)}
                 <div class="connection-item">
-                  <div class="node-icon peer" class:offline={peer?.status === 'offline'} title={peer?.label || 'Unknown'}>
+                  <div 
+                    class="node-icon peer" 
+                    class:offline={peer?.status === 'offline'} 
+                    title={peer?.label || 'Unknown'}
+                    role="button"
+                    tabindex="0"
+                    onclick={() => { if (peer) topology.selectNode(peer.id); }}
+                    onkeydown={(e) => { if (e.key === 'Enter' && peer) topology.selectNode(peer.id); }}
+                    style="cursor: pointer; transition: transform 0.15s ease;"
+                    onpointerdown={(e) => e.currentTarget.style.transform = 'scale(0.9)'}
+                    onpointerup={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                    onpointerleave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  >
                     <PeerIcon size={16} />
                   </div>
                   <div class="cable-view" class:offline={link.status === 'offline'}>
