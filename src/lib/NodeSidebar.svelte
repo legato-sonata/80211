@@ -89,11 +89,10 @@
             </div>
           {/if}
           <div class="form-group">
-            <label for="node-status">Status</label>
-            <select id="node-status" bind:value={topology.selectedNode.status}>
-              <option value="online">Online</option>
-              <option value="warning">Warning</option>
-              <option value="offline">Offline</option>
+            <label for="node-power">Power State</label>
+            <select id="node-power" bind:value={topology.selectedNode.power}>
+              <option value={true}>ON</option>
+              <option value={false}>OFF</option>
             </select>
           </div>
           <div class="divider"></div>
@@ -209,7 +208,11 @@
             </div>
           {/if}
           <div class="info-group">
-            <span class="info-label">Status</span>
+            <span class="info-label">Power</span>
+            <span class="info-value">{topology.selectedNode.power === false ? 'OFF' : 'ON'}</span>
+          </div>
+          <div class="info-group">
+            <span class="info-label">Network Status</span>
             <span class="info-value">{topology.selectedNode.status}</span>
           </div>
           <div class="divider"></div>
@@ -234,14 +237,7 @@
               <option value="wireless">Wireless (Dashed)</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="link-status">Status</label>
-            <select id="link-status" bind:value={topology.selectedLink.status}>
-              <option value="active">Active</option>
-              <option value="warning">Warning</option>
-              <option value="offline">Offline</option>
-            </select>
-          </div>
+
         {:else}
           <div class="info-group">
             <span class="info-label">Type</span>

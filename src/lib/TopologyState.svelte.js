@@ -238,35 +238,51 @@ export class TopologyState {
       const target = this.nodes.find(n => n.id === link.target);
       if (!source || !target) return;
 
-      if (isValidIp(source.ip) && isValidIp(target.ip)) {
+      const sourcePower = source.power !== false;
+      const targetPower = target.power !== false;
+
+      if (!sourcePower || !targetPower) {
+        if (link.status !== 'offline') {
+          link.status = 'offline';
+        }
+      } else if (isValidIp(source.ip) && isValidIp(target.ip)) {
         const matchSourceMask = isSameSubnet(source.ip, target.ip, source.subnet);
         const matchTargetMask = isSameSubnet(source.ip, target.ip, target.subnet);
         
         if (matchSourceMask && matchTargetMask) {
-          if (link.status === 'warning') {
+          if (link.status === 'warning' || link.status === 'offline') {
             link.status = 'active';
           }
         } else {
-          if (link.status === 'active') {
+          if (link.status !== 'warning') {
             link.status = 'warning';
           }
+        }
+      } else {
+        if (link.status !== 'active') {
+          link.status = 'active';
         }
       }
     });
 
     // 4. Update Node Statuses
     this.nodes.forEach(n => {
+      if (n.power === false) {
+        if (n.status !== 'offline') n.status = 'offline';
+        return;
+      }
+
       const nodeLinks = this.links.filter(l => l.source === n.id || l.target === n.id);
       if (nodeLinks.length === 0) {
         if (n.status !== 'offline') n.status = 'offline';
       } else {
-        const allWarning = nodeLinks.every(l => l.status === 'warning');
+        const allWarning = nodeLinks.every(l => l.status === 'warning' || l.status === 'offline');
         const anyActive = nodeLinks.some(l => l.status === 'active');
         
-        if (allWarning) {
-          if (n.status !== 'warning') n.status = 'warning';
-        } else if (anyActive) {
+        if (anyActive) {
           if (n.status !== 'online') n.status = 'online';
+        } else if (allWarning) {
+          if (n.status !== 'warning') n.status = 'warning';
         }
       }
     });
@@ -284,6 +300,7 @@ export class TopologyState {
       ip: isEndDevice ? 'Auto' : '0.0.0.0',
       subnet: '255.255.255.0',
       gateway: '0.0.0.0',
+      power: true,
       status: 'online',
       details: {},
       x: window.innerWidth / 2 - 50 + Math.random() * 100,
