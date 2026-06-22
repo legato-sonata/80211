@@ -30,6 +30,7 @@ export class TopologyState {
   isUIHidden = $state(false);
   isReportOpen = $state(false);
   isTerminalOpen = $state(false);
+  errorMessage = $state(null);
 
   history = $state([]);
   historyIndex = $state(-1);
@@ -52,8 +53,18 @@ export class TopologyState {
     this.selectedNodeId = null;
     this.selectedLinkId = null;
     this.isLinkingMode = false;
+    this.errorMessage = null;
     this.pushHistory();
     this.centerGraph();
+  }
+
+  showError(msg) {
+    this.errorMessage = msg;
+    setTimeout(() => {
+      if (this.errorMessage === msg) {
+        this.errorMessage = null;
+      }
+    }, 4000);
   }
 
   pushHistory() {
@@ -320,6 +331,27 @@ export class TopologyState {
   }
 
   addLink(source, target, type) {
+    const MAX_PORTS = {
+      router: 8, switch: 24, server: 4, ap: 50,
+      computer: 1, pos: 1, camera: 1, printer: 1
+    };
+
+    const sourceNode = this.nodes.find(n => n.id === source);
+    const targetNode = this.nodes.find(n => n.id === target);
+    if (!sourceNode || !targetNode) return;
+
+    const sourceLinks = this.links.filter(l => l.source === source || l.target === source).length;
+    const targetLinks = this.links.filter(l => l.source === target || l.target === target).length;
+
+    if (sourceLinks >= (MAX_PORTS[sourceNode.type] || 4)) {
+      this.showError(`${sourceNode.label} has no available ports left.`);
+      return;
+    }
+    if (targetLinks >= (MAX_PORTS[targetNode.type] || 4)) {
+      this.showError(`${targetNode.label} has no available ports left.`);
+      return;
+    }
+
     const exists = this.links.find(l => (l.source === source && l.target === target) || (l.source === target && l.target === source));
     if (!exists) {
       const id = `l${Date.now()}`;

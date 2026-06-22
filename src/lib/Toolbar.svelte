@@ -176,7 +176,14 @@
   </div>
 {/if}
 
-{#if topology.isLinkingMode}
+{#if topology.errorMessage}
+  <div class="linking-toast error-toast">
+    <span style="font-size: 0.75rem;">{topology.errorMessage}</span>
+    <button class="cancel-btn" onclick={() => topology.errorMessage = null} aria-label="Dismiss error">
+      <X size={14} strokeWidth={2} />
+    </button>
+  </div>
+{:else if topology.isLinkingMode}
   <div class="linking-toast">
     <span style="font-size: 0.75rem;">Tap two nodes to connect</span>
     <button class="cancel-btn" onclick={() => topology.toggleLinkingMode()} aria-label="Cancel connection">
@@ -325,6 +332,14 @@
     color: var(--text-primary);
   }
 
+  .error-toast .cancel-btn {
+    background: #fca5a5;
+    color: #991b1b;
+  }
+  .error-toast .cancel-btn:hover {
+    background: #f87171;
+  }
+
   .fab-wrapper {
     position: fixed;
     bottom: 72px;
@@ -377,10 +392,16 @@
     width: 220px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     overflow: hidden;
-    pointer-events: auto;
     max-height: 70vh;
     display: flex;
     flex-direction: column;
+    pointer-events: auto;
+  }
+
+  .linking-toast.error-toast {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
   }
 
   .menu-scroll-container {
