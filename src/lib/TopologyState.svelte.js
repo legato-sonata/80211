@@ -223,7 +223,9 @@ export class TopologyState {
           if (n.subnet !== assignment.subnet) n.subnet = assignment.subnet;
           if (n.gateway !== assignment.gateway) n.gateway = assignment.gateway;
         } else {
-          if (n.ip !== 'Auto') n.ip = 'Auto';
+          const hasLinks = this.links.some(l => l.source === n.id || l.target === n.id);
+          const fallbackText = hasLinks ? 'Auto' : 'Disconnected';
+          if (n.ip !== fallbackText) n.ip = fallbackText;
           if (n.subnet !== '') n.subnet = '';
           if (n.gateway !== '') n.gateway = '';
         }
@@ -248,6 +250,23 @@ export class TopologyState {
           if (link.status === 'active') {
             link.status = 'warning';
           }
+        }
+      }
+    });
+
+    // 4. Update Node Statuses
+    this.nodes.forEach(n => {
+      const nodeLinks = this.links.filter(l => l.source === n.id || l.target === n.id);
+      if (nodeLinks.length === 0) {
+        if (n.status !== 'offline') n.status = 'offline';
+      } else {
+        const allWarning = nodeLinks.every(l => l.status === 'warning');
+        const anyActive = nodeLinks.some(l => l.status === 'active');
+        
+        if (allWarning) {
+          if (n.status !== 'warning') n.status = 'warning';
+        } else if (anyActive) {
+          if (n.status !== 'online') n.status = 'online';
         }
       }
     });
