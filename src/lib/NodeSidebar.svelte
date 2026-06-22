@@ -48,14 +48,43 @@
     if (val.startsWith('.')) val = val.substring(1);
     
     let parts = val.split('.');
+    
+    // Auto-split blocks longer than 3 digits (e.g. typing 192168 quickly)
+    let newParts = [];
+    for (let i = 0; i < parts.length; i++) {
+      let p = parts[i];
+      if (p === '') {
+        newParts.push('');
+        continue;
+      }
+      while (p.length > 3) {
+        newParts.push(p.substring(0, 3));
+        p = p.substring(3);
+      }
+      newParts.push(p);
+    }
+    parts = newParts;
+
     if (parts.length > 4) parts = parts.slice(0, 4);
     
     val = parts.map(p => {
       if (p === '') return p;
       let num = parseInt(p, 10);
       if (num > 255) return '255';
-      return p; // Keep original to allow typing e.g., '192' without stripping partial '0' initially
+      return p; 
     }).join('.');
+
+    // Auto-dot feature
+    const prevVal = topology.selectedNode[field] || '';
+    if (e.target.value.length > prevVal.length) {
+      const finalParts = val.split('.');
+      if (finalParts.length > 0 && finalParts.length < 4) {
+        const lastPart = finalParts[finalParts.length - 1];
+        if (lastPart.length === 3) {
+          val += '.';
+        }
+      }
+    }
 
     // ALWAYS update DOM to strip invalid chars instantly
     e.target.value = val;
