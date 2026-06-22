@@ -28,7 +28,16 @@
     return iconMap[type] || Monitor;
   }
 
-  let connectedPeers = $derived.by(() => {
+  let showAllConnections = $state(false);
+
+  $effect(() => {
+    // Reset toggle when selecting a different node
+    if (topology.selectedNodeId) {
+      showAllConnections = false;
+    }
+  });
+
+  let allConnectedPeers = $derived.by(() => {
     if (!topology.selectedNode) return [];
     const nodeId = topology.selectedNode.id;
     const links = topology.links.filter(l => {
@@ -36,7 +45,7 @@
       const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
       return srcId === nodeId || tgtId === nodeId;
     });
-    return links.slice(0, 3).map(link => {
+    return links.map(link => {
       const srcId = typeof link.source === 'object' ? link.source.id : link.source;
       const tgtId = typeof link.target === 'object' ? link.target.id : link.target;
       const isSource = srcId === nodeId;
@@ -45,6 +54,8 @@
       return { peer, link, isSource };
     });
   });
+
+  let displayedPeers = $derived(showAllConnections ? allConnectedPeers : allConnectedPeers.slice(0, 3));
 
   let showMacWarning = $state(false);
   let macWarningTimeout;
@@ -176,11 +187,11 @@
 
     <div class="sidebar-content">
       {#if topology.selectedNode}
-        {#if connectedPeers.length > 0}
+        {#if allConnectedPeers.length > 0}
           <div class="connections-preview">
-            <p class="section-title">Direct Connections</p>
+            <p class="section-title">Port Assignments</p>
             <div class="connections-list">
-              {#each connectedPeers as {peer, link, isSource}}
+              {#each displayedPeers as {peer, link, isSource}}
                 {@const PeerIcon = getIcon(peer?.type)}
                 {@const TargetIcon = getIcon(topology.selectedNode.type)}
                 <div class="connection-item">
@@ -221,8 +232,14 @@
                 </div>
               {/each}
             </div>
-            {#if topology.links.filter(l => l.source === topology.selectedNode.id || l.target === topology.selectedNode.id).length > 3}
-              <div class="helper-text text-muted" style="text-align: center; margin-top: 8px;">+ {topology.links.filter(l => l.source === topology.selectedNode.id || l.target === topology.selectedNode.id).length - 3} more connections</div>
+            {#if allConnectedPeers.length > 3}
+              <button 
+                class="btn toggle-connections-btn" 
+                onclick={() => showAllConnections = !showAllConnections}
+                style="width: 100%; margin-top: 12px; font-size: 0.75rem; padding: 6px; background: transparent; border: 1px dashed var(--border); color: var(--text-secondary);"
+              >
+                {showAllConnections ? 'Show Less' : `+ ${allConnectedPeers.length - 3} More Ports`}
+              </button>
             {/if}
           </div>
           <div class="divider"></div>
