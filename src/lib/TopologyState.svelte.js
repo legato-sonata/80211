@@ -16,8 +16,8 @@ export class TopologyState {
   isRecording = true;
   initialState = null;
 
-  constructor() {
-    this.initialState = {
+  constructor(blank = false) {
+    const defaultState = {
       nodes: [
         { id: 'n1', type: 'router', label: 'Main Gateway', ip: '192.168.1.1', subnet: '255.255.255.0', gateway: '0.0.0.0', status: 'online', details: { dhcp: '192.168.1.100 - 192.168.1.200', firmware: 'v2.4.1', model: 'ER-X' }, x: -50, y: -200 },
         { id: 'n2', type: 'switch', label: 'Core Switch', ip: '192.168.1.2', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { ports: 24, poe: true, model: 'USW-24-PoE' }, x: -50, y: -50 },
@@ -36,6 +36,7 @@ export class TopologyState {
         { id: 'l6', source: 'n2', target: 'n7', type: 'ethernet', status: 'warning' }
       ]
     };
+    this.initialState = blank ? { nodes: [], links: [] } : defaultState;
     this.nodes = JSON.parse(JSON.stringify(this.initialState.nodes));
     this.links = JSON.parse(JSON.stringify(this.initialState.links));
     this.pushHistory();

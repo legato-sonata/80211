@@ -13,7 +13,7 @@
 
   function addTab() {
     const id = Date.now();
-    const newState = new TopologyState();
+    const newState = new TopologyState(true);
     newState.name = `Office ${tabs.length + 1}`;
     tabs.push({ id, state: newState });
     activeTabId = id;
