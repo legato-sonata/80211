@@ -5,16 +5,20 @@
   import X from '@lucide/svelte/icons/x';
   
   const initialTabId = Date.now();
+  let untitledCount = 1;
+  const initialTopology = new TopologyState(true);
+  initialTopology.name = 'Untitled';
   let tabs = $state([
-    { id: initialTabId, state: new TopologyState() }
+    { id: initialTabId, state: initialTopology }
   ]);
   let activeTabId = $state(initialTabId);
   let editingTabId = $state(null);
 
   function addTab() {
+    untitledCount++;
     const id = Date.now();
     const newState = new TopologyState(true);
-    newState.name = `Office ${tabs.length + 1}`;
+    newState.name = `Untitled ${untitledCount}`;
     tabs.push({ id, state: newState });
     activeTabId = id;
   }

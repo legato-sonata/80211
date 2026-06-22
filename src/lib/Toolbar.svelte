@@ -13,6 +13,7 @@
   import Image from '@lucide/svelte/icons/image';
   import FileText from '@lucide/svelte/icons/file-text';
   import Activity from '@lucide/svelte/icons/activity';
+  import Wand2 from '@lucide/svelte/icons/wand-2';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
   import Circle from '@lucide/svelte/icons/circle';
   import Network from '@lucide/svelte/icons/network';
@@ -210,6 +211,10 @@
             <button class="tile-btn" onclick={() => fileInput.click()}>
               <Upload size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">Load</span>
+            </button>
+            <button class="tile-btn" onclick={() => { menuOpen = false; topology.loadExample(); }}>
+              <Wand2 size={18} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">Example</span>
             </button>
             <button class="tile-btn" onclick={openReport}>
               <FileText size={18} color="var(--text-secondary)" strokeWidth={1.5} />

@@ -1,5 +1,25 @@
+const DEFAULT_EXAMPLE_STATE = {
+  nodes: [
+    { id: 'n1', type: 'router', label: 'Main Gateway', ip: '192.168.1.1', subnet: '255.255.255.0', gateway: '0.0.0.0', status: 'online', details: { dhcp: '192.168.1.100 - 192.168.1.200', firmware: 'v2.4.1', model: 'ER-X' }, x: -50, y: -200 },
+    { id: 'n2', type: 'switch', label: 'Core Switch', ip: '192.168.1.2', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { ports: 24, poe: true, model: 'USW-24-PoE' }, x: -50, y: -50 },
+    { id: 'n3', type: 'pos', label: 'Register 1', ip: '192.168.1.101', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { mac: '00:1A:2B:3C:4D:5E', location: 'Front Counter' }, x: -250, y: 150 },
+    { id: 'n4', type: 'pos', label: 'Register 2', ip: '192.168.1.102', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'warning', details: { mac: '00:1A:2B:3C:4D:5F', location: 'Front Counter', error: 'High Latency detected' }, x: -50, y: 150 },
+    { id: 'n5', type: 'ap', label: 'Ceiling AP (Floor)', ip: '192.168.1.10', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'offline', details: { mac: '00:1A:2B:3C:4D:60', ssid: 'Store_Guest' }, x: 150, y: 150 },
+    { id: 'n6', type: 'camera', label: 'CCTV Front Door', ip: '192.168.1.20', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { mac: '00:1A:2B:3C:4D:61', resolution: '1080p' }, x: 150, y: -200 },
+    { id: 'n7', type: 'printer', label: 'Kitchen Printer', ip: '192.168.1.50', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'warning', details: { mac: '00:1A:2B:3C:4D:62', ink: 'Low' }, x: -250, y: -50 }
+  ],
+  links: [
+    { id: 'l1', source: 'n1', target: 'n2', type: 'fiber', status: 'active' },
+    { id: 'l2', source: 'n2', target: 'n3', type: 'ethernet', status: 'active' },
+    { id: 'l3', source: 'n2', target: 'n4', type: 'ethernet', status: 'warning' },
+    { id: 'l4', source: 'n2', target: 'n5', type: 'wireless', status: 'active' },
+    { id: 'l5', source: 'n2', target: 'n6', type: 'ethernet', status: 'active' },
+    { id: 'l6', source: 'n2', target: 'n7', type: 'ethernet', status: 'warning' }
+  ]
+};
+
 export class TopologyState {
-  name = $state('Office');
+  name = $state('Untitled');
   nodes = $state([]);
   links = $state([]);
   selectedNodeId = $state(null);
@@ -17,29 +37,23 @@ export class TopologyState {
   initialState = null;
 
   constructor(blank = false) {
-    const defaultState = {
-      nodes: [
-        { id: 'n1', type: 'router', label: 'Main Gateway', ip: '192.168.1.1', subnet: '255.255.255.0', gateway: '0.0.0.0', status: 'online', details: { dhcp: '192.168.1.100 - 192.168.1.200', firmware: 'v2.4.1', model: 'ER-X' }, x: -50, y: -200 },
-        { id: 'n2', type: 'switch', label: 'Core Switch', ip: '192.168.1.2', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { ports: 24, poe: true, model: 'USW-24-PoE' }, x: -50, y: -50 },
-        { id: 'n3', type: 'pos', label: 'Register 1', ip: '192.168.1.101', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { mac: '00:1A:2B:3C:4D:5E', location: 'Front Counter' }, x: -250, y: 150 },
-        { id: 'n4', type: 'pos', label: 'Register 2', ip: '192.168.1.102', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'warning', details: { mac: '00:1A:2B:3C:4D:5F', location: 'Front Counter', error: 'High Latency detected' }, x: -50, y: 150 },
-        { id: 'n5', type: 'ap', label: 'Ceiling AP (Floor)', ip: '192.168.1.10', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'offline', details: { mac: '00:1A:2B:3C:4D:60', ssid: 'Store_Guest' }, x: 150, y: 150 },
-        { id: 'n6', type: 'camera', label: 'CCTV Front Door', ip: '192.168.1.20', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { mac: '00:1A:2B:3C:4D:61', resolution: '1080p' }, x: 150, y: -200 },
-        { id: 'n7', type: 'printer', label: 'Kitchen Printer', ip: '192.168.1.50', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'warning', details: { mac: '00:1A:2B:3C:4D:62', ink: 'Low' }, x: -250, y: -50 }
-      ],
-      links: [
-        { id: 'l1', source: 'n1', target: 'n2', type: 'fiber', status: 'active' },
-        { id: 'l2', source: 'n2', target: 'n3', type: 'ethernet', status: 'active' },
-        { id: 'l3', source: 'n2', target: 'n4', type: 'ethernet', status: 'warning' },
-        { id: 'l4', source: 'n2', target: 'n5', type: 'wireless', status: 'active' },
-        { id: 'l5', source: 'n2', target: 'n6', type: 'ethernet', status: 'active' },
-        { id: 'l6', source: 'n2', target: 'n7', type: 'ethernet', status: 'warning' }
-      ]
-    };
-    this.initialState = blank ? { nodes: [], links: [] } : defaultState;
+    this.initialState = blank ? { nodes: [], links: [] } : DEFAULT_EXAMPLE_STATE;
+    if (!blank) this.name = 'Office Example';
     this.nodes = JSON.parse(JSON.stringify(this.initialState.nodes));
     this.links = JSON.parse(JSON.stringify(this.initialState.links));
     this.pushHistory();
+  }
+
+  loadExample() {
+    this.initialState = DEFAULT_EXAMPLE_STATE;
+    this.nodes = JSON.parse(JSON.stringify(DEFAULT_EXAMPLE_STATE.nodes));
+    this.links = JSON.parse(JSON.stringify(DEFAULT_EXAMPLE_STATE.links));
+    this.name = 'Office Example';
+    this.selectedNodeId = null;
+    this.selectedLinkId = null;
+    this.isLinkingMode = false;
+    this.pushHistory();
+    this.centerGraph();
   }
 
   pushHistory() {
