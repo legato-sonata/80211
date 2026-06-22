@@ -21,6 +21,8 @@
   import Monitor from '@lucide/svelte/icons/monitor';
   import HardDrive from '@lucide/svelte/icons/hard-drive';
   import Trash2 from '@lucide/svelte/icons/trash-2';
+  import Camera from '@lucide/svelte/icons/camera';
+  import Shapes from '@lucide/svelte/icons/shapes';
   import { toPng, toSvg } from 'html-to-image';
 
   const topology = getTopology();
@@ -256,18 +258,18 @@
         <div class="menu-divider"></div>
 
         <div class="menu-section">
-          <span class="section-label">Export Image</span>
+          <span class="section-label">Export</span>
           <div class="tile-grid">
             <button class="tile-btn" onclick={() => exportImage('png', 'full')}>
               <Image size={18} color="var(--text-secondary)" strokeWidth={1.5} />
-              <span class="tile-label">PNG Full</span>
+              <span class="tile-label">Full Map</span>
             </button>
             <button class="tile-btn" onclick={() => exportImage('png', 'view')}>
-              <Image size={18} color="var(--text-secondary)" strokeWidth={1.5} />
-              <span class="tile-label">PNG View</span>
+              <Camera size={18} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">Screenshot</span>
             </button>
             <button class="tile-btn" onclick={() => exportImage('svg', 'full')}>
-              <Image size={18} color="var(--text-secondary)" strokeWidth={1.5} />
+              <Shapes size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">SVG</span>
             </button>
           </div>
