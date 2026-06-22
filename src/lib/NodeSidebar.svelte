@@ -248,7 +248,7 @@
                         <div class="cable-line" style="border-top-color: {row.upstream.link.status === 'offline' ? '#dc2626' : row.upstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-primary)'}; border-top-style: {row.upstream.link.type === 'wireless' ? 'dashed' : 'solid'};"></div>
                         <span class="cable-text" style="color: {row.upstream.link.status === 'offline' ? '#dc2626' : row.upstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-secondary)'};">{row.upstream.link.type} • {row.upstream.link.status}</span>
                       </div>
-                    {#else}
+                    {:else}
                       <div class="node-wrapper empty"></div>
                       <div class="cable-view empty"></div>
                     {/if}
@@ -286,7 +286,7 @@
                         </div>
                         <span class="node-label">{row.downstream.peer?.label || 'Unknown'}</span>
                       </div>
-                    {#else}
+                    {:else}
                       <div class="cable-view empty"></div>
                       <div class="node-wrapper empty"></div>
                     {/if}
