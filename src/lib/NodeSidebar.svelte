@@ -82,6 +82,12 @@
               <input id="node-gateway" type="text" bind:value={topology.selectedNode.gateway} />
             </div>
           {/if}
+          {#if topology.selectedNode.ipAllocation === 'dhcp'}
+            <div class="info-group" style="margin-bottom: 8px;">
+              <span class="info-label">IP Address</span>
+              <span class="info-value text-muted">{topology.selectedNode.ip === 'Auto' ? 'Auto Assigned' : `${topology.selectedNode.ip} (DHCP)`}</span>
+            </div>
+          {/if}
           <div class="form-group">
             <label for="node-status">Status</label>
             <select id="node-status" bind:value={topology.selectedNode.status}>
@@ -199,7 +205,7 @@
           {:else}
             <div class="info-group">
               <span class="info-label">IP Address</span>
-              <span class="info-value text-muted">Auto Assigned</span>
+              <span class="info-value text-muted">{topology.selectedNode.ip === 'Auto' ? 'Auto Assigned' : `${topology.selectedNode.ip} (DHCP)`}</span>
             </div>
           {/if}
           <div class="info-group">

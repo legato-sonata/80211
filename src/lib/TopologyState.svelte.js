@@ -180,19 +180,63 @@ export class TopologyState {
       return (i1 & m) === (i2 & m);
     };
 
+    // 1. Calculate DHCP assignments without mutating
+    let dhcpAssignments = new Map();
+    let changed = true;
+    let iterations = 0;
+    while (changed && iterations < 10) {
+      changed = false;
+      iterations++;
+      this.links.forEach(link => {
+        const source = this.nodes.find(n => n.id === link.source);
+        const target = this.nodes.find(n => n.id === link.target);
+        if (!source || !target) return;
+
+        const assignDHCP = (dhcpNode, refNode) => {
+          if (dhcpNode.ipAllocation === 'dhcp' && !dhcpAssignments.has(dhcpNode.id)) {
+            const refIp = dhcpAssignments.get(refNode.id)?.ip || refNode.ip;
+            const refSubnet = dhcpAssignments.get(refNode.id)?.subnet || refNode.subnet;
+            const refGateway = dhcpAssignments.get(refNode.id)?.gateway || refNode.gateway;
+
+            if (isValidIp(refIp) && isValidIp(refSubnet)) {
+              const parts = refIp.split('.');
+              const idHash = dhcpNode.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0) % 200 + 50;
+              const ip = `${parts[0]}.${parts[1]}.${parts[2]}.${idHash}`;
+              const gateway = refNode.type === 'router' ? refIp : refGateway;
+              dhcpAssignments.set(dhcpNode.id, { ip, subnet: refSubnet, gateway });
+              changed = true;
+            }
+          }
+        };
+
+        assignDHCP(source, target);
+        assignDHCP(target, source);
+      });
+    }
+
+    // 2. Apply assignments only if different
+    this.nodes.forEach(n => {
+      if (n.ipAllocation === 'dhcp') {
+        const assignment = dhcpAssignments.get(n.id);
+        if (assignment) {
+          if (n.ip !== assignment.ip) n.ip = assignment.ip;
+          if (n.subnet !== assignment.subnet) n.subnet = assignment.subnet;
+          if (n.gateway !== assignment.gateway) n.gateway = assignment.gateway;
+        } else {
+          if (n.ip !== 'Auto') n.ip = 'Auto';
+          if (n.subnet !== '') n.subnet = '';
+          if (n.gateway !== '') n.gateway = '';
+        }
+      }
+    });
+
+    // 3. Validate links
     this.links.forEach(link => {
       const source = this.nodes.find(n => n.id === link.source);
       const target = this.nodes.find(n => n.id === link.target);
       if (!source || !target) return;
 
-      const sourceAlloc = source.ipAllocation || 'static';
-      const targetAlloc = target.ipAllocation || 'static';
-
-      if (sourceAlloc === 'dhcp' || targetAlloc === 'dhcp') {
-        if (link.status === 'warning') {
-          link.status = 'active';
-        }
-      } else if (isValidIp(source.ip) && isValidIp(target.ip)) {
+      if (isValidIp(source.ip) && isValidIp(target.ip)) {
         const matchSourceMask = isSameSubnet(source.ip, target.ip, source.subnet);
         const matchTargetMask = isSameSubnet(source.ip, target.ip, target.subnet);
         
