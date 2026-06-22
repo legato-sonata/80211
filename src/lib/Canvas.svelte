@@ -8,8 +8,6 @@
   import PrinterIcon from '@lucide/svelte/icons/printer';
   import HardDrive from '@lucide/svelte/icons/hard-drive';
   import Monitor from '@lucide/svelte/icons/monitor';
-  import Camera from '@lucide/svelte/icons/camera';
-  import Network from '@lucide/svelte/icons/network';
 
   import { onMount } from 'svelte';
   
@@ -243,14 +241,13 @@
   function getIcon(type) {
     switch(type) {
       case 'router': return Router;
-      case 'switch': return Network;
-      case 'server': return Server;
+      case 'switch': return Server;
+      case 'server': return HardDrive;
       case 'computer': return Monitor;
       case 'pos': return CreditCard;
       case 'ap': return Wifi;
       case 'printer': return PrinterIcon;
-      case 'storage': return HardDrive;
-      case 'camera': return Camera;
+      case 'camera': return MonitorSmartphone;
       default: return MonitorSmartphone;
     }
   }

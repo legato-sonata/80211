@@ -9,23 +9,19 @@
   import PrinterIcon from '@lucide/svelte/icons/printer';
   import Monitor from '@lucide/svelte/icons/monitor';
   import HardDrive from '@lucide/svelte/icons/hard-drive';
-  import Camera from '@lucide/svelte/icons/camera';
-  import Network from '@lucide/svelte/icons/network';
   import Terminal from '@lucide/svelte/icons/terminal';
 
   const topology = getTopology();
 
   const iconMap = {
-    server: Server,
-    router: Router,
-    switch: Network,
-    ap: Wifi,
     computer: Monitor,
     pos: CreditCard,
-    printer: PrinterIcon,
-    storage: HardDrive,
-    camera: Camera,
-    mobile: MonitorSmartphone
+    server: HardDrive,
+    router: Router,
+    switch: Server,
+    ap: Wifi,
+    camera: MonitorSmartphone,
+    printer: PrinterIcon
   };
 
   function getIcon(type) {
