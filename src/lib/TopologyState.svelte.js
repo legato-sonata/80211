@@ -78,6 +78,15 @@ export class TopologyState {
     this.pushHistory();
   }
 
+  clearAll() {
+    this.nodes = [];
+    this.links = [];
+    this.selectedNodeId = null;
+    this.selectedLinkId = null;
+    this.isLinkingMode = false;
+    this.pushHistory();
+  }
+
   loadSnapshot(snapshotString) {
     this.isRecording = false;
     const data = JSON.parse(snapshotString);

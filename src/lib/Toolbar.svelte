@@ -19,6 +19,7 @@
   import PrinterIcon from '@lucide/svelte/icons/printer';
   import Monitor from '@lucide/svelte/icons/monitor';
   import HardDrive from '@lucide/svelte/icons/hard-drive';
+  import Trash2 from '@lucide/svelte/icons/trash-2';
   import { toPng, toSvg } from 'html-to-image';
 
   const topology = getTopology();
@@ -213,6 +214,10 @@
             <button class="tile-btn" onclick={openReport}>
               <FileText size={18} color="var(--text-secondary)" strokeWidth={1.5} />
               <span class="tile-label">Report</span>
+            </button>
+            <button class="tile-btn" onclick={() => { menuOpen = false; topology.clearAll(); }}>
+              <Trash2 size={18} color="var(--text-secondary)" strokeWidth={1.5} />
+              <span class="tile-label">Clear</span>
             </button>
           </div>
         </div>
