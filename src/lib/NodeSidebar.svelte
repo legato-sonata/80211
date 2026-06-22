@@ -342,6 +342,27 @@
             <label for="node-label">Label</label>
             <input id="node-label" type="text" bind:value={topology.selectedNode.label} />
           </div>
+          {#if topology.selectedNode.type === 'camera'}
+            <div class="form-group">
+              <label for="node-subtype">Device Role</label>
+              <select id="node-subtype" bind:value={topology.selectedNode.subtype}>
+                <option value={undefined}>Standard CCTV</option>
+                <option value="dvr">DVR (Digital Video Recorder)</option>
+                <option value="nvr">NVR (Network Video Recorder)</option>
+              </select>
+            </div>
+          {/if}
+          {#if topology.selectedNode.type === 'printer'}
+            <div class="form-group">
+              <label for="node-subtype">Printer Type</label>
+              <select id="node-subtype" bind:value={topology.selectedNode.subtype}>
+                <option value={undefined}>Standard Printer</option>
+                <option value="laser">Laser Printer</option>
+                <option value="inkjet">Inkjet Printer</option>
+                <option value="thermal">Thermal Receipt Printer</option>
+              </select>
+            </div>
+          {/if}
           <div class="form-group">
             <label for="node-vendor">Vendor / Model</label>
             <input id="node-vendor" type="text" bind:value={topology.selectedNode.vendor} placeholder="e.g. Cisco Catalyst 9300" />
