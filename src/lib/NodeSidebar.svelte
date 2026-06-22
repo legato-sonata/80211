@@ -188,27 +188,33 @@
                 {@const PeerIcon = getIcon(peer?.type)}
                 {@const TargetIcon = getIcon(topology.selectedNode.type)}
                 <div class="connection-item">
-                  <div 
-                    class="node-icon peer" 
-                    class:offline={peer?.status === 'offline'} 
-                    title={peer?.label || 'Unknown'}
-                    role="button"
-                    tabindex="0"
-                    onclick={() => { if (peer) topology.selectNode(peer.id); }}
-                    onkeydown={(e) => { if (e.key === 'Enter' && peer) topology.selectNode(peer.id); }}
-                    style="cursor: pointer; transition: transform 0.15s ease; order: {isSource ? 3 : 1};"
-                    onpointerdown={(e) => e.currentTarget.style.transform = 'scale(0.9)'}
-                    onpointerup={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                    onpointerleave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                  >
-                    <PeerIcon size={16} />
+                  <div class="node-wrapper" style="order: {isSource ? 3 : 1};">
+                    <div 
+                      class="node-icon peer" 
+                      class:offline={peer?.status === 'offline'} 
+                      title={peer?.label || 'Unknown'}
+                      role="button"
+                      tabindex="0"
+                      onclick={() => { if (peer) topology.selectNode(peer.id); }}
+                      onkeydown={(e) => { if (e.key === 'Enter' && peer) topology.selectNode(peer.id); }}
+                      style="cursor: pointer; transition: transform 0.15s ease;"
+                      onpointerdown={(e) => e.currentTarget.style.transform = 'scale(0.9)'}
+                      onpointerup={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      onpointerleave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                    >
+                      <PeerIcon size={16} />
+                    </div>
+                    <span class="node-label">{peer?.label || 'Unknown'}</span>
                   </div>
                   <div class="cable-view" class:offline={link.status === 'offline'} style="order: 2;">
                     <div class="cable-line"></div>
                     <span class="cable-text">{link.type} • {link.status}</span>
                   </div>
-                  <div class="node-icon target" class:offline={topology.selectedNode.status === 'offline'} title={topology.selectedNode.label} style="order: {isSource ? 1 : 3};">
-                    <TargetIcon size={16} />
+                  <div class="node-wrapper" style="order: {isSource ? 1 : 3};">
+                    <div class="node-icon target" class:offline={topology.selectedNode.status === 'offline'} title={topology.selectedNode.label}>
+                      <TargetIcon size={16} />
+                    </div>
+                    <span class="node-label">{topology.selectedNode.label}</span>
                   </div>
                 </div>
               {/each}
@@ -609,17 +615,39 @@
   .connections-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
+    margin-top: 14px;
   }
 
   .connection-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     background: var(--surface);
-    padding: 10px 14px;
+    padding: 12px 10px;
     border-radius: 8px;
     border: 1px solid var(--border);
+  }
+
+  .node-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 70px;
+    gap: 6px;
+  }
+
+  .node-label {
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    width: 100%;
   }
 
   .node-icon {
@@ -632,6 +660,7 @@
     background: var(--surface-hover);
     color: var(--text-primary);
     border: 1px solid var(--border);
+    flex-shrink: 0;
   }
 
   .node-icon.offline {
@@ -645,7 +674,8 @@
     flex-direction: column;
     align-items: center;
     position: relative;
-    margin: 0 12px;
+    margin: 0 4px;
+    margin-top: 15px;
   }
 
   .cable-line {
@@ -659,7 +689,7 @@
   }
 
   .cable-text {
-    font-size: 0.65rem;
+    font-size: 0.5rem;
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
