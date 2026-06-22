@@ -44,8 +44,12 @@
         {#if topology.isEditing}
           <p class="section-title">Asset Information</p>
           <div class="form-group">
-            <label for="node-label">Name</label>
+            <label for="node-label">Label</label>
             <input id="node-label" type="text" bind:value={topology.selectedNode.label} />
+          </div>
+          <div class="form-group">
+            <label for="node-vendor">Vendor / Model</label>
+            <input id="node-vendor" type="text" bind:value={topology.selectedNode.vendor} placeholder="e.g. Cisco Catalyst 9300" />
           </div>
           <div class="form-group">
             <label for="node-serial">Serial / MAC Address</label>
@@ -184,6 +188,12 @@
             <span class="info-label">Type</span>
             <span class="info-value">{topology.selectedNode.type}</span>
           </div>
+          {#if topology.selectedNode.vendor}
+            <div class="info-group">
+              <span class="info-label">Vendor/Model</span>
+              <span class="info-value">{topology.selectedNode.vendor}</span>
+            </div>
+          {/if}
           <div class="info-group">
             <span class="info-label">Allocation</span>
             <span class="info-value">{topology.selectedNode.ipAllocation === 'dhcp' ? 'DHCP' : 'Static'}</span>

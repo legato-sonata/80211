@@ -252,15 +252,38 @@ export class TopologyState {
       const sourcePower = source.power !== false;
       const targetPower = target.power !== false;
 
+      const getVlans = (node) => {
+        if (!node.details) return null;
+        if (node.details.vlans) return node.details.vlans.split(',').map(v => v.trim()).filter(Boolean);
+        if (node.details.vlan) return [node.details.vlan.toString().trim()].filter(Boolean);
+        return null;
+      };
+
       if (!sourcePower || !targetPower) {
         if (link.status !== 'offline') {
           link.status = 'offline';
         }
-      } else if (isValidIp(source.ip) && isValidIp(target.ip)) {
-        const matchSourceMask = isSameSubnet(source.ip, target.ip, source.subnet);
-        const matchTargetMask = isSameSubnet(source.ip, target.ip, target.subnet);
-        
-        if (matchSourceMask && matchTargetMask) {
+      } else {
+        let isValid = false;
+
+        if (isValidIp(source.ip) && isValidIp(target.ip)) {
+          const matchSourceMask = isSameSubnet(source.ip, target.ip, source.subnet);
+          const matchTargetMask = isSameSubnet(source.ip, target.ip, target.subnet);
+          isValid = matchSourceMask && matchTargetMask;
+        } else {
+          // Fallback to active if IPs are unconfigured (assume Layer 2 works)
+          isValid = true;
+        }
+
+        if (isValid) {
+          const vlanA = getVlans(source);
+          const vlanB = getVlans(target);
+          if (vlanA && vlanB && vlanA.length > 0 && vlanB.length > 0) {
+            isValid = vlanA.some(v => vlanB.includes(v));
+          }
+        }
+
+        if (isValid) {
           if (link.status === 'warning' || link.status === 'offline') {
             link.status = 'active';
           }
@@ -268,10 +291,6 @@ export class TopologyState {
           if (link.status !== 'warning') {
             link.status = 'warning';
           }
-        }
-      } else {
-        if (link.status !== 'active') {
-          link.status = 'active';
         }
       }
     });
@@ -307,6 +326,7 @@ export class TopologyState {
       id,
       type,
       label: `New ${type.toUpperCase()}`,
+      vendor: '',
       ipAllocation: isEndDevice ? 'dhcp' : 'static',
       ip: isEndDevice ? 'Auto' : '0.0.0.0',
       subnet: '255.255.255.0',
