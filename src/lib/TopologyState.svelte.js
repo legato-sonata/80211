@@ -155,6 +155,53 @@ export class TopologyState {
     }
   }
 
+  validateNetwork() {
+    const ipToInt = (ip) => {
+      if (!ip) return 0;
+      const parts = ip.split('.');
+      if (parts.length !== 4) return 0;
+      return parts.reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0;
+    };
+
+    const isValidIp = (ip) => {
+      if (!ip || ip === '0.0.0.0') return false;
+      const parts = ip.split('.');
+      return parts.length === 4 && parts.every(p => {
+        const num = parseInt(p, 10);
+        return !isNaN(num) && num >= 0 && num <= 255;
+      });
+    };
+
+    const isSameSubnet = (ip1, ip2, mask) => {
+      if (!isValidIp(ip1) || !isValidIp(ip2) || !isValidIp(mask)) return false;
+      const i1 = ipToInt(ip1);
+      const i2 = ipToInt(ip2);
+      const m = ipToInt(mask);
+      return (i1 & m) === (i2 & m);
+    };
+
+    this.links.forEach(link => {
+      const source = this.nodes.find(n => n.id === link.source);
+      const target = this.nodes.find(n => n.id === link.target);
+      if (!source || !target) return;
+
+      if (isValidIp(source.ip) && isValidIp(target.ip)) {
+        const matchSourceMask = isSameSubnet(source.ip, target.ip, source.subnet);
+        const matchTargetMask = isSameSubnet(source.ip, target.ip, target.subnet);
+        
+        if (matchSourceMask && matchTargetMask) {
+          if (link.status === 'warning') {
+            link.status = 'active';
+          }
+        } else {
+          if (link.status === 'active') {
+            link.status = 'warning';
+          }
+        }
+      }
+    });
+  }
+
   addNode(type) {
     this.isUIHidden = false;
     const id = `n${Date.now()}`;

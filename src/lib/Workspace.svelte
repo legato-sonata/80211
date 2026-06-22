@@ -11,6 +11,10 @@
 
   let { topology } = $props();
   setTopology(untrack(() => topology));
+
+  $effect(() => {
+    topology.validateNetwork();
+  });
 </script>
 
 <div class="workspace-inner">
