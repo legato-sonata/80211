@@ -30,7 +30,9 @@
     topology.pushHistory();
   }
 
-  function formatMacAddress(e) {
+  let isComposing = false;
+
+  function enforceMacFormat(e) {
     const original = e.target.value;
     let val = original.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
     
@@ -49,21 +51,20 @@
     
     formatted = formatted.substring(0, 17);
 
-    // Gboard composition buffer sync trick:
-    // If Gboard allows typing past 17 chars in its internal buffer, 
-    // a synchronous DOM update might be ignored. A next-tick override forces it to flush.
-    if (original.length > 17) {
-      setTimeout(() => {
-        if (e.target) e.target.value = formatted;
-      }, 0);
-    }
-
-    // ALWAYS update DOM to strip invalid chars instantly
     e.target.value = formatted;
     topology.selectedNode.details.serial = formatted;
   }
 
-  function formatIpAddress(e, field) {
+  function formatMacAddress(e) {
+    if (!isComposing) enforceMacFormat(e);
+  }
+
+  function handleMacCompositionEnd(e) {
+    isComposing = false;
+    enforceMacFormat(e);
+  }
+
+  function enforceIpFormat(e, field) {
     let val = e.target.value.replace(/[^0-9.]/g, '');
     val = val.replace(/\.+/g, '.'); // collapse multiple dots
     if (val.startsWith('.')) val = val.substring(1);
@@ -112,6 +113,14 @@
     topology.selectedNode[field] = val;
   }
 
+  function formatIpAddress(e, field) {
+    if (!isComposing) enforceIpFormat(e, field);
+  }
+
+  function handleIpCompositionEnd(e, field) {
+    isComposing = false;
+    enforceIpFormat(e, field);
+  }
 </script>
 
 {#if topology.selectedNode || topology.selectedLink}
@@ -138,7 +147,7 @@
           </div>
           <div class="form-group">
             <label for="node-serial">Serial / MAC Address</label>
-            <input id="node-serial" class={showMacWarning ? 'input-error' : ''} type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.details.serial || ''} oninput={formatMacAddress} placeholder="e.g. 00:1A:2B:3C:4D:5E" maxlength="17" />
+            <input id="node-serial" class={showMacWarning ? 'input-error' : ''} type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.details.serial || ''} oncompositionstart={() => isComposing = true} oncompositionend={handleMacCompositionEnd} oninput={formatMacAddress} placeholder="e.g. 00:1A:2B:3C:4D:5E" maxlength="17" />
             {#if showMacWarning}
               <span class="helper-text error-text">Only Hexadecimal (0-9, A-F) allowed!</span>
             {/if}
@@ -163,15 +172,15 @@
           {#if topology.selectedNode.ipAllocation !== 'dhcp'}
             <div class="form-group">
               <label for="node-ip">IP Address</label>
-              <input id="node-ip" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.ip} oninput={(e) => formatIpAddress(e, 'ip')} placeholder="192.168.1.x" />
+              <input id="node-ip" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.ip} oncompositionstart={() => isComposing = true} oncompositionend={(e) => handleIpCompositionEnd(e, 'ip')} oninput={(e) => formatIpAddress(e, 'ip')} placeholder="192.168.1.x" />
             </div>
             <div class="form-group">
               <label for="node-subnet">Subnet Mask</label>
-              <input id="node-subnet" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.subnet} oninput={(e) => formatIpAddress(e, 'subnet')} placeholder="255.255.255.0" />
+              <input id="node-subnet" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.subnet} oncompositionstart={() => isComposing = true} oncompositionend={(e) => handleIpCompositionEnd(e, 'subnet')} oninput={(e) => formatIpAddress(e, 'subnet')} placeholder="255.255.255.0" />
             </div>
             <div class="form-group">
               <label for="node-gateway">Default Gateway</label>
-              <input id="node-gateway" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.gateway} oninput={(e) => formatIpAddress(e, 'gateway')} placeholder="192.168.1.1" />
+              <input id="node-gateway" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.gateway} oncompositionstart={() => isComposing = true} oncompositionend={(e) => handleIpCompositionEnd(e, 'gateway')} oninput={(e) => formatIpAddress(e, 'gateway')} placeholder="192.168.1.1" />
             </div>
           {/if}
           {#if topology.selectedNode.ipAllocation === 'dhcp'}
