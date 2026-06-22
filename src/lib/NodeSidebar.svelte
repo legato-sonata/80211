@@ -202,7 +202,7 @@
                       onpointerup={(e) => e.currentTarget.style.transform = 'scale(1)'}
                       onpointerleave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                     >
-                      <PeerIcon size={16} />
+                      <PeerIcon size={20} color="var(--text-primary)" strokeWidth={1.5} />
                     </div>
                     <span class="node-label">{peer?.label || 'Unknown'}</span>
                   </div>
@@ -212,7 +212,7 @@
                   </div>
                   <div class="node-wrapper" style="order: {isSource ? 1 : 3};">
                     <div class="node-icon target" class:offline={topology.selectedNode.status === 'offline'} title={topology.selectedNode.label}>
-                      <TargetIcon size={16} />
+                      <TargetIcon size={20} color="var(--text-primary)" strokeWidth={1.5} />
                     </div>
                     <span class="node-label">{topology.selectedNode.label}</span>
                   </div>
@@ -679,7 +679,7 @@
   }
 
   .cable-line {
-    width: 100%;
+    align-self: stretch;
     border-top: 2px solid var(--primary);
     margin-bottom: 4px;
   }
