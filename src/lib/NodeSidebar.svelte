@@ -37,25 +37,53 @@
     }
   });
 
-  let allConnectedPeers = $derived.by(() => {
-    if (!topology.selectedNode) return [];
+  let connectionData = $derived.by(() => {
+    if (!topology.selectedNode) return { rows: [], hasUp: false, hasDown: false, totalHidden: 0, total: 0 };
     const nodeId = topology.selectedNode.id;
     const links = topology.links.filter(l => {
       const srcId = typeof l.source === 'object' ? l.source.id : l.source;
       const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
       return srcId === nodeId || tgtId === nodeId;
     });
-    return links.map(link => {
+    
+    let upstreams = [];
+    let downstreams = [];
+    
+    links.forEach(link => {
       const srcId = typeof link.source === 'object' ? link.source.id : link.source;
       const tgtId = typeof link.target === 'object' ? link.target.id : link.target;
       const isSource = srcId === nodeId;
       const peerId = isSource ? tgtId : srcId;
       const peer = topology.nodes.find(n => n.id === peerId);
-      return { peer, link, isSource };
+      if (isSource) downstreams.push({ peer, link });
+      else upstreams.push({ peer, link });
     });
+
+    const rows = [];
+    const count = Math.max(upstreams.length, downstreams.length);
+    for (let i = 0; i < count; i++) {
+      rows.push({
+        upstream: upstreams[i] || null,
+        downstream: downstreams[i] || null
+      });
+    }
+
+    let shownCount = 0;
+    if (rows.length > 0) {
+      if (rows[0].upstream) shownCount++;
+      if (rows[0].downstream) shownCount++;
+    }
+
+    return {
+      rows,
+      hasUp: upstreams.length > 0,
+      hasDown: downstreams.length > 0,
+      totalHidden: links.length - shownCount,
+      total: links.length
+    };
   });
 
-  let displayedPeers = $derived(showAllConnections ? allConnectedPeers : allConnectedPeers.slice(0, 3));
+  let displayedRows = $derived(showAllConnections ? connectionData.rows : connectionData.rows.slice(0, 1));
 
   let showMacWarning = $state(false);
   let macWarningTimeout;
@@ -187,58 +215,93 @@
 
     <div class="sidebar-content">
       {#if topology.selectedNode}
-        {#if allConnectedPeers.length > 0}
+        {#if connectionData.total > 0}
           <div class="connections-preview">
             <p class="section-title">Port Assignments</p>
             <div class="connections-list">
-              {#each displayedPeers as {peer, link, isSource}}
-                {@const PeerIcon = getIcon(peer?.type)}
+              {#each displayedRows as row}
                 {@const TargetIcon = getIcon(topology.selectedNode.type)}
-                <div class="connection-item">
-                  <div class="node-wrapper" style="order: {isSource ? 3 : 1};">
-                    <div 
-                      class="node-icon peer" 
-                      class:offline={peer?.status === 'offline'} 
-                      title={peer?.label || 'Unknown'}
-                      role="button"
-                      tabindex="0"
-                      onclick={() => { if (peer) topology.selectNode(peer.id); }}
-                      onkeydown={(e) => { if (e.key === 'Enter' && peer) topology.selectNode(peer.id); }}
-                      style="cursor: pointer; transition: transform 0.15s ease;"
-                      onpointerdown={(e) => e.currentTarget.style.transform = 'scale(0.9)'}
-                      onpointerup={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                      onpointerleave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                    >
-                      <PeerIcon size={20} color="var(--text-primary)" strokeWidth={1.5} />
-                    </div>
-                    <span class="node-label">{peer?.label || 'Unknown'}</span>
-                  </div>
-                  <div class="cable-view" style="order: 2;">
-                    <div 
-                      class="cable-line" 
-                      style="border-top-color: {link.status === 'offline' ? '#dc2626' : link.status === 'warning' ? '#f59e0b' : 'var(--text-primary)'}; border-top-style: {link.type === 'wireless' ? 'dashed' : 'solid'};"
-                    ></div>
-                    <span 
-                      class="cable-text" 
-                      style="color: {link.status === 'offline' ? '#dc2626' : link.status === 'warning' ? '#f59e0b' : 'var(--text-secondary)'};"
-                    >{link.type} • {link.status}</span>
-                  </div>
-                  <div class="node-wrapper" style="order: {isSource ? 1 : 3};">
+                <div class="connection-item flow-row">
+                  
+                  {#if connectionData.hasUp}
+                    {#if row.upstream}
+                      {@const UpIcon = getIcon(row.upstream.peer?.type)}
+                      <div class="node-wrapper">
+                        <div 
+                          class="node-icon peer" 
+                          class:offline={row.upstream.peer?.status === 'offline'} 
+                          title={row.upstream.peer?.label || 'Unknown'}
+                          role="button"
+                          tabindex="0"
+                          onclick={() => { if (row.upstream.peer) topology.selectNode(row.upstream.peer.id); }}
+                          onkeydown={(e) => { if (e.key === 'Enter' && row.upstream.peer) topology.selectNode(row.upstream.peer.id); }}
+                          style="cursor: pointer; transition: transform 0.15s ease;"
+                          onpointerdown={(e) => e.currentTarget.style.transform = 'scale(0.9)'}
+                          onpointerup={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          onpointerleave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                          <UpIcon size={20} color="var(--text-primary)" strokeWidth={1.5} />
+                        </div>
+                        <span class="node-label">{row.upstream.peer?.label || 'Unknown'}</span>
+                      </div>
+                      <div class="cable-view">
+                        <div class="cable-line" style="border-top-color: {row.upstream.link.status === 'offline' ? '#dc2626' : row.upstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-primary)'}; border-top-style: {row.upstream.link.type === 'wireless' ? 'dashed' : 'solid'};"></div>
+                        <span class="cable-text" style="color: {row.upstream.link.status === 'offline' ? '#dc2626' : row.upstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-secondary)'};">{row.upstream.link.type} • {row.upstream.link.status}</span>
+                      </div>
+                    {#else}
+                      <div class="node-wrapper empty"></div>
+                      <div class="cable-view empty"></div>
+                    {/if}
+                  {/if}
+
+                  <div class="node-wrapper center-node">
                     <div class="node-icon target" class:offline={topology.selectedNode.status === 'offline'} title={topology.selectedNode.label}>
                       <TargetIcon size={20} color="var(--text-primary)" strokeWidth={1.5} />
                     </div>
                     <span class="node-label">{topology.selectedNode.label}</span>
                   </div>
+
+                  {#if connectionData.hasDown}
+                    {#if row.downstream}
+                      {@const DownIcon = getIcon(row.downstream.peer?.type)}
+                      <div class="cable-view">
+                        <div class="cable-line" style="border-top-color: {row.downstream.link.status === 'offline' ? '#dc2626' : row.downstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-primary)'}; border-top-style: {row.downstream.link.type === 'wireless' ? 'dashed' : 'solid'};"></div>
+                        <span class="cable-text" style="color: {row.downstream.link.status === 'offline' ? '#dc2626' : row.downstream.link.status === 'warning' ? '#f59e0b' : 'var(--text-secondary)'};">{row.downstream.link.type} • {row.downstream.link.status}</span>
+                      </div>
+                      <div class="node-wrapper">
+                        <div 
+                          class="node-icon peer" 
+                          class:offline={row.downstream.peer?.status === 'offline'} 
+                          title={row.downstream.peer?.label || 'Unknown'}
+                          role="button"
+                          tabindex="0"
+                          onclick={() => { if (row.downstream.peer) topology.selectNode(row.downstream.peer.id); }}
+                          onkeydown={(e) => { if (e.key === 'Enter' && row.downstream.peer) topology.selectNode(row.downstream.peer.id); }}
+                          style="cursor: pointer; transition: transform 0.15s ease;"
+                          onpointerdown={(e) => e.currentTarget.style.transform = 'scale(0.9)'}
+                          onpointerup={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          onpointerleave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                          <DownIcon size={20} color="var(--text-primary)" strokeWidth={1.5} />
+                        </div>
+                        <span class="node-label">{row.downstream.peer?.label || 'Unknown'}</span>
+                      </div>
+                    {#else}
+                      <div class="cable-view empty"></div>
+                      <div class="node-wrapper empty"></div>
+                    {/if}
+                  {/if}
+
                 </div>
               {/each}
             </div>
-            {#if allConnectedPeers.length > 3}
+            {#if connectionData.totalHidden > 0}
               <button 
                 class="btn toggle-connections-btn" 
                 onclick={() => showAllConnections = !showAllConnections}
                 style="width: 100%; margin-top: 12px; font-size: 0.75rem; padding: 6px; background: transparent; border: 1px dashed var(--border); color: var(--text-secondary);"
               >
-                {showAllConnections ? 'Show Less' : `+ ${allConnectedPeers.length - 3} More Ports`}
+                {showAllConnections ? 'Show Less' : `+ ${connectionData.totalHidden} More Ports`}
               </button>
             {/if}
           </div>
@@ -648,12 +711,26 @@
     border: 1px solid var(--border);
   }
 
+  .connection-item.flow-row {
+    padding: 12px 6px;
+  }
+
   .node-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 70px;
+    width: 65px;
     gap: 6px;
+  }
+
+  .node-wrapper.empty {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cable-view.empty {
+    opacity: 0;
+    pointer-events: none;
   }
 
   .node-label {
