@@ -96,7 +96,7 @@
   let showMacWarning = $state(false);
   let macWarningTimeout;
 
-  // No longer using configText as we directly bind to details properties.
+  let activeTab = $state('network');
 
   function handleClose() {
     if (topology.selectedNodeId) topology.selectNode(null);
@@ -344,10 +344,15 @@
           <div class="divider"></div>
         {/if}
 
+        <div class="tabs">
+          <button class="tab-btn" class:active={activeTab === 'network'} onclick={() => activeTab = 'network'}>Network</button>
+          <button class="tab-btn" class:active={activeTab === 'inventory'} onclick={() => activeTab = 'inventory'}>Inventory</button>
+        </div>
+
         {#if topology.isEditing}
-          <p class="section-title">Asset Information</p>
-          <div class="form-group">
-            <label for="node-label">Label</label>
+          {#if activeTab === 'inventory'}
+            <div class="form-group">
+              <label for="node-label">Label</label>
             <input id="node-label" type="text" bind:value={topology.selectedNode.label} />
           </div>
           {#if topology.selectedNode.type === 'camera'}
@@ -388,9 +393,43 @@
             <input id="node-last-maintenance" type="date" bind:value={topology.selectedNode.details.lastMaintenance} />
           </div>
           <div class="divider"></div>
-          <p class="section-title">Network Configuration</p>
-          <div class="form-group">
-            <label for="node-allocation">IP Allocation</label>
+          <p class="section-title">Additional Details</p>
+          {#if !topology.selectedNode.details}
+            <div style="display:none">{topology.selectedNode.details = {}}</div>
+          {/if}
+          
+          {#if topology.selectedNode.details}
+            {#each Object.entries(topology.selectedNode.details) as [key, value], i}
+              <div class="form-group kv-group">
+                <input type="text" class="kv-key" value={key} onchange={(e) => {
+                  const newKey = e.target.value.trim();
+                  if (newKey && newKey !== key) {
+                    topology.selectedNode.details[newKey] = value;
+                    delete topology.selectedNode.details[key];
+                    topology.selectedNode.details = { ...topology.selectedNode.details };
+                  }
+                }} placeholder="Key" />
+                <input type="text" class="kv-value" value={value} onchange={(e) => {
+                  topology.selectedNode.details[key] = e.target.value;
+                  topology.selectedNode.details = { ...topology.selectedNode.details };
+                }} placeholder="Value" />
+                <button class="icon-btn text-muted" style="color: #ef4444; flex-shrink: 0;" aria-label="Delete field" onclick={() => {
+                  delete topology.selectedNode.details[key];
+                  topology.selectedNode.details = { ...topology.selectedNode.details };
+                }}><X size={16}/></button>
+              </div>
+            {/each}
+            <button class="btn add-detail-btn" onclick={() => {
+              const num = Object.keys(topology.selectedNode.details).length + 1;
+              topology.selectedNode.details[`newField${num}`] = '';
+              topology.selectedNode.details = { ...topology.selectedNode.details };
+            }}>+ Add Field</button>
+          {/if}
+          {/if}
+
+          {#if activeTab === 'network'}
+            <div class="form-group">
+              <label for="node-allocation">IP Allocation</label>
             <select id="node-allocation" bind:value={topology.selectedNode.ipAllocation}>
               <option value="static">Static IP</option>
               <option value="dhcp">DHCP (Auto)</option>
@@ -440,62 +479,64 @@
               <span class="info-value text-muted">{topology.selectedNode.ip === 'Auto' ? 'Auto Assigned' : topology.selectedNode.ip === 'Disconnected' ? 'Disconnected' : `${topology.selectedNode.ip} (DHCP)`}</span>
             </div>
           {/if}
-          <div class="form-group">
-            <label for="node-power">Power State</label>
-            <select id="node-power" bind:value={topology.selectedNode.power}>
-              <option value={true}>ON</option>
-              <option value={false}>OFF</option>
-            </select>
-          </div>
-          <div class="divider"></div>
-          <div class="section-title">Additional Details</div>
-          {#if !topology.selectedNode.details}
-            <div style="display:none">{topology.selectedNode.details = {}}</div>
-          {/if}
-          
-          {#if topology.selectedNode.details}
-            {#each Object.entries(topology.selectedNode.details) as [key, value], i}
-              <div class="form-group kv-group">
-                <input type="text" class="kv-key" value={key} onchange={(e) => {
-                  const newKey = e.target.value.trim();
-                  if (newKey && newKey !== key) {
-                    topology.selectedNode.details[newKey] = value;
-                    delete topology.selectedNode.details[key];
-                    topology.selectedNode.details = { ...topology.selectedNode.details };
-                  }
-                }} placeholder="Key" />
-                <input type="text" class="kv-value" value={value} onchange={(e) => {
-                  topology.selectedNode.details[key] = e.target.value;
-                  topology.selectedNode.details = { ...topology.selectedNode.details };
-                }} placeholder="Value" />
-                <button class="icon-btn text-muted" style="color: #ef4444; flex-shrink: 0;" aria-label="Delete field" onclick={() => {
-                  delete topology.selectedNode.details[key];
-                  topology.selectedNode.details = { ...topology.selectedNode.details };
-                }}><X size={16}/></button>
-              </div>
-            {/each}
-            <button class="btn add-detail-btn" onclick={() => {
-              const num = Object.keys(topology.selectedNode.details).length + 1;
-              topology.selectedNode.details[`newField${num}`] = '';
-              topology.selectedNode.details = { ...topology.selectedNode.details };
-            }}>+ Add Field</button>
-          {/if}
-        {:else}
-          <div class="info-group">
-            <span class="info-label">Type</span>
-            <span class="info-value">{topology.selectedNode.type}</span>
-          </div>
-          {#if topology.selectedNode.vendor}
-            <div class="info-group">
-              <span class="info-label">Vendor/Model</span>
-              <span class="info-value">{topology.selectedNode.vendor}</span>
+            <div class="form-group">
+              <label for="node-power">Power State</label>
+              <select id="node-power" bind:value={topology.selectedNode.power}>
+                <option value={true}>ON</option>
+                <option value={false}>OFF</option>
+              </select>
             </div>
           {/if}
-          <div class="info-group">
-            <span class="info-label">Allocation</span>
-            <span class="info-value">{topology.selectedNode.ipAllocation === 'dhcp' ? 'DHCP' : 'Static'}</span>
-          </div>
-          {#if topology.selectedNode.ipAllocation !== 'dhcp'}
+        {:else}
+          {#if activeTab === 'inventory'}
+            <div class="info-group">
+              <span class="info-label">Type</span>
+              <span class="info-value">{topology.selectedNode.type}</span>
+            </div>
+            {#if topology.selectedNode.vendor}
+              <div class="info-group">
+                <span class="info-label">Vendor/Model</span>
+                <span class="info-value">{topology.selectedNode.vendor}</span>
+              </div>
+            {/if}
+            {#if topology.selectedNode.details.serial}
+              <div class="info-group">
+                <span class="info-label">Serial Number</span>
+                <span class="info-value">{topology.selectedNode.details.serial}</span>
+              </div>
+            {/if}
+            {#if topology.selectedNode.details.purchaseDate}
+              <div class="info-group">
+                <span class="info-label">Purchase Date</span>
+                <span class="info-value">{topology.selectedNode.details.purchaseDate}</span>
+              </div>
+            {/if}
+            {#if topology.selectedNode.details.lastMaintenance}
+              <div class="info-group">
+                <span class="info-label">Last Maintenance</span>
+                <span class="info-value">{topology.selectedNode.details.lastMaintenance}</span>
+              </div>
+            {/if}
+            <div class="divider"></div>
+            <p class="section-title">Additional Details</p>
+            {#if !topology.selectedNode.details || typeof topology.selectedNode.details !== 'object' || Object.keys(topology.selectedNode.details).filter(k => !['serial', 'purchaseDate', 'lastMaintenance'].includes(k)).length === 0}
+              <p class="text-muted">No additional configuration.</p>
+            {:else}
+              {#each Object.entries(topology.selectedNode.details).filter(([k]) => !['serial', 'purchaseDate', 'lastMaintenance'].includes(k)) as [key, value]}
+                <div class="info-group">
+                  <span class="info-label">{key}</span>
+                  <span class="info-value">{value}</span>
+                </div>
+              {/each}
+            {/if}
+          {/if}
+
+          {#if activeTab === 'network'}
+            <div class="info-group">
+              <span class="info-label">Allocation</span>
+              <span class="info-value">{topology.selectedNode.ipAllocation === 'dhcp' ? 'DHCP' : 'Static'}</span>
+            </div>
+            {#if topology.selectedNode.ipAllocation !== 'dhcp'}
             <div class="info-group">
               <span class="info-label">IP Address</span>
               <span class="info-value">{topology.selectedNode.ip}</span>
@@ -543,24 +584,14 @@
               <span class="info-value">{topology.selectedNode.vlan || 1}</span>
             </div>
           {/if}
-          <div class="info-group">
-            <span class="info-label">Power</span>
-            <span class="info-value">{topology.selectedNode.power === false ? 'OFF' : 'ON'}</span>
-          </div>
-          <div class="info-group">
-            <span class="info-label">Network Status</span>
-            <span class="info-value">{topology.selectedNode.status}</span>
-          </div>
-          <div class="divider"></div>
-          {#if !topology.selectedNode.details || typeof topology.selectedNode.details !== 'object' || Object.keys(topology.selectedNode.details).length === 0}
-            <p class="text-muted">No additional configuration.</p>
-          {:else}
-            {#each Object.entries(topology.selectedNode.details) as [key, value]}
-              <div class="info-group">
-                <span class="info-label">{key}</span>
-                <span class="info-value">{value}</span>
-              </div>
-            {/each}
+            <div class="info-group">
+              <span class="info-label">Power</span>
+              <span class="info-value">{topology.selectedNode.power === false ? 'OFF' : 'ON'}</span>
+            </div>
+            <div class="info-group">
+              <span class="info-label">Network Status</span>
+              <span class="info-value">{topology.selectedNode.status}</span>
+            </div>
           {/if}
         {/if}
       {:else if topology.selectedLink}
@@ -838,7 +869,40 @@
   }
 
   .connections-preview {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .tab-btn:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+  }
+
+  .tab-btn.active {
+    background: var(--surface);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
   }
 
   .connections-list {
