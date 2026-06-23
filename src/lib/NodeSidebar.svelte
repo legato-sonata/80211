@@ -765,13 +765,17 @@
 
   .kv-key {
     flex: 1;
+    min-width: 0;
     font-weight: 600;
     font-size: 0.75rem !important;
+    padding: 6px 8px !important;
   }
 
   .kv-value {
     flex: 1;
+    min-width: 0;
     font-family: var(--font-mono);
+    padding: 6px 8px !important;
   }
 
   .add-detail-btn {
