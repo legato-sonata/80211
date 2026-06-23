@@ -1,6 +1,6 @@
 <script>
   import { getTopology } from './context.js';
-  import { simulatePing, simulateTracert, simulateNslookup, simulateDhcp } from './SimulationEngine.js';
+  import { simulatePing, simulateTracert, simulateNslookup, simulateDhcp, getCidrFromMask, getNetworkAddress } from './SimulationEngine.js';
   import X from '@lucide/svelte/icons/x';
   
   let { node = null, onClose = () => {} } = $props();
@@ -11,6 +11,8 @@
   let outputLines = $state([]);
   
   let terminalContainer;
+  let isRouter = $derived(node?.type === 'router');
+  let promptTextStr = $derived(isRouter ? `[admin@${node.label.replace(/\s+/g, '')}] >` : `C:\\Users\\${node.label.replace(/\s+/g, '')}>`);
 
   $effect(() => {
     if (outputLines.length >= 0 && terminalContainer) {
@@ -28,11 +30,48 @@
 
   function handleCommand(e) {
     e.preventDefault();
+    // Do not trim toLowerCase yet, just trim space
     const cmd = input.trim();
-    printLine(`C:\\Users\\${node.label}> ${cmd}`);
+    printLine(`${promptTextStr} ${cmd}`);
     input = '';
     
     if (!cmd) return;
+
+    if (isRouter) {
+      const lowerCmd = cmd.toLowerCase();
+      if (lowerCmd === '/ip address print' || lowerCmd === 'ip address print') {
+        printLine('Flags: X - disabled, I - invalid, D - dynamic');
+        printLine(' #   ADDRESS            NETWORK         INTERFACE');
+        printLine(` 0   ${node.ip}/${getCidrFromMask(node.subnet) || '24'}   ${getNetworkAddress(node.ip, node.subnet).padEnd(15, ' ')} ether1`);
+      } else if (lowerCmd === '/ip route print' || lowerCmd === 'ip route print') {
+        printLine('Flags: D - dynamic, A - active, c - connect, s - static');
+        printLine(` #      DST-ADDRESS        PREF-SRC        GATEWAY         DISTANCE`);
+        if (node.gateway && node.gateway !== '0.0.0.0') {
+           printLine(` 0 A S  0.0.0.0/0                          ${node.gateway.padEnd(15, ' ')} 1`);
+        }
+        printLine(` 1 ADC  ${getNetworkAddress(node.ip, node.subnet)}/${getCidrFromMask(node.subnet) || '24'}  ${node.ip.padEnd(15, ' ')}                 0`);
+      } else if (lowerCmd.startsWith('ping ')) {
+        const targetIp = lowerCmd.split(' ')[1];
+        if (!targetIp) { printLine('expected IP address'); return; }
+        const result = simulatePing(topology, node.id, targetIp);
+        printLine(`  SEQ HOST                                     SIZE TTL TIME  STATUS`);
+        if (result.success) {
+          printLine(`    0 ${targetIp.padEnd(40, ' ')}   56  64 2ms`);
+          printLine(`    1 ${targetIp.padEnd(40, ' ')}   56  64 1ms`);
+          printLine('    sent=2 received=2 packet-loss=0% min-rtt=1ms avg-rtt=1ms max-rtt=2ms');
+        } else {
+          printLine(`    0 ${targetIp.padEnd(40, ' ')}               timeout`);
+          printLine('    sent=1 received=0 packet-loss=100%');
+        }
+      } else if (lowerCmd === 'quit' || lowerCmd === 'exit') {
+        onClose();
+      } else if (lowerCmd === 'clear' || lowerCmd === '/system console clear') {
+         outputLines = [];
+      } else {
+        printLine('bad command name ' + lowerCmd.split(' ')[0] + ' (line 1 column 1)');
+      }
+      return;
+    }
 
       const args = cmd.split(' ');
       const program = args[0].toLowerCase();
@@ -161,8 +200,8 @@
         <div class="term-line">{line}</div>
       {/each}
       <div class="term-input-line">
-        <span class="prompt">C:\Users\{node.label}&gt;</span>
-        <textarea id="term-input" bind:value={input} oninput={() => input = input.toLowerCase()} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" name="search" rows="1" onkeydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCommand(e); } }} use:focusOnMount></textarea>
+        <span class="prompt">{promptTextStr}</span>
+        <textarea id="term-input" bind:value={input} autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" name="search" rows="1" onkeydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCommand(e); } }} use:focusOnMount></textarea>
       </div>
     </div>
   </div>
