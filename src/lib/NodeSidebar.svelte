@@ -1,5 +1,6 @@
 <script>
   import { getTopology } from './context.js';
+  import { getCidrFromMask, getNetworkAddress, getBroadcastAddress, isPrivateIp } from './SimulationEngine.js';
   import X from '@lucide/svelte/icons/x';
   import Server from '@lucide/svelte/icons/server';
   import Router from '@lucide/svelte/icons/router';
@@ -411,6 +412,14 @@
               <label for="node-gateway">Default Gateway</label>
               <input id="node-gateway" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.gateway} oncompositionstart={() => isComposing = true} oncompositionend={(e) => handleIpCompositionEnd(e, 'gateway')} oninput={(e) => formatIpAddress(e, 'gateway')} placeholder="192.168.1.1" />
             </div>
+            {#if topology.selectedNode.ip && topology.selectedNode.subnet}
+              <div class="subnet-calc-card">
+                <div class="calc-row"><span>CIDR Notation:</span> <strong>{topology.selectedNode.ip}/{getCidrFromMask(topology.selectedNode.subnet)}</strong></div>
+                <div class="calc-row"><span>IP Type:</span> <strong>{isPrivateIp(topology.selectedNode.ip) ? 'Private' : 'Public'}</strong></div>
+                <div class="calc-row"><span>Network Addr:</span> <strong>{getNetworkAddress(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
+                <div class="calc-row"><span>Broadcast Addr:</span> <strong>{getBroadcastAddress(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
+              </div>
+            {/if}
           {/if}
           {#if topology.selectedNode.ipAllocation === 'dhcp'}
             <div class="info-group" style="margin-bottom: 8px;">
@@ -537,6 +546,14 @@
               <span class="info-label">Default Gateway</span>
               <span class="info-value">{topology.selectedNode.gateway || '-'}</span>
             </div>
+            {#if topology.selectedNode.ip && topology.selectedNode.subnet}
+              <div class="subnet-calc-card" style="margin-top: 8px;">
+                <div class="calc-row"><span>CIDR Notation:</span> <strong>{topology.selectedNode.ip}/{getCidrFromMask(topology.selectedNode.subnet)}</strong></div>
+                <div class="calc-row"><span>IP Type:</span> <strong>{isPrivateIp(topology.selectedNode.ip) ? 'Private' : 'Public'}</strong></div>
+                <div class="calc-row"><span>Network Addr:</span> <strong>{getNetworkAddress(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
+                <div class="calc-row"><span>Broadcast Addr:</span> <strong>{getBroadcastAddress(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
+              </div>
+            {/if}
           {:else}
             <div class="info-group">
               <span class="info-label">IP Address</span>
@@ -744,6 +761,33 @@
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-4px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  .subnet-calc-card {
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .calc-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+  }
+
+  .calc-row span {
+    color: var(--text-secondary);
+  }
+
+  .calc-row strong {
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    font-weight: 600;
   }
 
   .connections-preview {

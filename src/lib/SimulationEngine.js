@@ -1,5 +1,45 @@
 export function ipToNum(ip) {
-  return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0);
+  return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0;
+}
+
+export function numToIp(num) {
+  return [
+    (num >>> 24) & 255,
+    (num >>> 16) & 255,
+    (num >>> 8) & 255,
+    num & 255
+  ].join('.');
+}
+
+export function getCidrFromMask(mask) {
+  if (!mask) return 0;
+  return mask.split('.').reduce((acc, octet) => acc + parseInt(octet, 10).toString(2).split('1').length - 1, 0);
+}
+
+export function getNetworkAddress(ip, mask) {
+  if (!ip || !mask) return '';
+  const i = ipToNum(ip);
+  const m = ipToNum(mask);
+  return numToIp(i & m);
+}
+
+export function getBroadcastAddress(ip, mask) {
+  if (!ip || !mask) return '';
+  const i = ipToNum(ip);
+  const m = ipToNum(mask);
+  const invM = (~m) >>> 0;
+  return numToIp((i & m) | invM);
+}
+
+export function isPrivateIp(ip) {
+  if (!ip) return false;
+  const parts = ip.split('.').map(p => parseInt(p, 10));
+  if (parts[0] === 10) return true;
+  if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
+  if (parts[0] === 192 && parts[1] === 168) return true;
+  if (parts[0] === 169 && parts[1] === 254) return true;
+  if (parts[0] === 127) return true;
+  return false;
 }
 
 export function isOnSameSubnet(ip1, mask1, ip2, mask2) {
