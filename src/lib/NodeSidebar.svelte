@@ -574,6 +574,14 @@
             </select>
           </div>
           <div class="form-group">
+            <label for="link-status">Connection Status</label>
+            <select id="link-status" bind:value={topology.selectedLink.status}>
+              <option value="active">Active (Green)</option>
+              <option value="warning">Warning (Yellow)</option>
+              <option value="offline">Offline (Red)</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label for="link-source-port">Source Port</label>
             <input id="link-source-port" type="text" bind:value={topology.selectedLink.sourcePort} placeholder="eth0" />
           </div>
