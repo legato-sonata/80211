@@ -140,7 +140,7 @@
     formatted = formatted.substring(0, 17);
 
     e.target.value = formatted;
-    topology.selectedNode.details.serial = formatted;
+    topology.selectedNode.mac = formatted;
   }
 
   function formatMacAddress(e) {
@@ -376,11 +376,8 @@
             <input id="node-vendor" type="text" bind:value={topology.selectedNode.vendor} placeholder="e.g. Cisco Catalyst 9300" />
           </div>
           <div class="form-group">
-            <label for="node-serial">Serial / MAC Address</label>
-            <input id="node-serial" class={showMacWarning ? 'input-error' : ''} type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.details.serial || ''} oncompositionstart={() => isComposing = true} oncompositionend={handleMacCompositionEnd} oninput={formatMacAddress} placeholder="e.g. 00:1A:2B:3C:4D:5E" maxlength="17" />
-            {#if showMacWarning}
-              <span class="helper-text error-text">Only Hexadecimal (0-9, A-F) allowed!</span>
-            {/if}
+            <label for="node-serial">Serial Number</label>
+            <input id="node-serial" type="text" bind:value={topology.selectedNode.details.serial} placeholder="e.g. SN-12345" />
           </div>
           <div class="form-group">
             <label for="node-purchase-date">Purchase Date</label>
@@ -414,7 +411,10 @@
             </div>
             <div class="form-group">
               <label for="node-mac">MAC Address</label>
-              <input id="node-mac" type="text" bind:value={topology.selectedNode.mac} placeholder="00:1A:2B:3C:4D:5E" />
+              <input id="node-mac" class={showMacWarning ? 'input-error' : ''} type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.mac || ''} oncompositionstart={() => isComposing = true} oncompositionend={handleMacCompositionEnd} oninput={formatMacAddress} placeholder="e.g. 00:1A:2B:3C:4D:5E" maxlength="17" />
+              {#if showMacWarning}
+                <span class="helper-text error-text">Only Hexadecimal (0-9, A-F) allowed!</span>
+              {/if}
             </div>
             <div class="form-group">
               <label for="node-vlan">VLAN ID (Access)</label>
