@@ -379,14 +379,32 @@ export class TopologyState {
 
     const exists = this.links.find(l => (l.source === source && l.target === target) || (l.source === target && l.target === source));
     if (!exists) {
+      const getNextPort = (nodeId, nodeType) => {
+        const nodeLinks = this.links.filter(l => l.source === nodeId || l.target === nodeId);
+        const prefix = nodeType === 'switch' ? 'port' : (nodeType === 'router' ? 'eth' : 'eth');
+        const startNum = (nodeType === 'switch' || nodeType === 'router') ? 1 : 0;
+        
+        const usedNums = nodeLinks.map(l => {
+          const portName = l.source === nodeId ? l.sourcePort : l.targetPort;
+          const match = portName && portName.match(/\d+$/);
+          return match ? parseInt(match[0]) : null;
+        }).filter(n => n !== null);
+
+        let nextNum = startNum;
+        while (usedNums.includes(nextNum)) {
+          nextNum++;
+        }
+        return `${prefix}${nextNum}`;
+      };
+
       const newLink = {
         id: `l${Date.now()}`,
         source: source,
         target: target,
         type: 'ethernet',
         status: 'active',
-        sourcePort: 'eth0',
-        targetPort: 'eth0'
+        sourcePort: getNextPort(source, sourceNode.type),
+        targetPort: getNextPort(target, targetNode.type)
       };
       this.links.push(newLink);
       this.pushHistory();
