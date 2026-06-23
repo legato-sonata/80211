@@ -12,7 +12,7 @@ const DEFAULT_EXAMPLE_STATE = {
     { id: 'l1', source: 'n1', target: 'n2', type: 'fiber', status: 'active' },
     { id: 'l2', source: 'n2', target: 'n3', type: 'ethernet', status: 'active' },
     { id: 'l3', source: 'n2', target: 'n4', type: 'ethernet', status: 'warning' },
-    { id: 'l4', source: 'n2', target: 'n5', type: 'wireless', status: 'active' },
+    { id: 'l4', source: 'n2', target: 'n5', type: 'ethernet', status: 'active' },
     { id: 'l5', source: 'n2', target: 'n6', type: 'ethernet', status: 'active' },
     { id: 'l6', source: 'n2', target: 'n7', type: 'ethernet', status: 'warning' }
   ]

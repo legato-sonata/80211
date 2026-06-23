@@ -438,88 +438,37 @@
             </select>
           </div>
           <div class="divider"></div>
-          <p class="section-title">Advanced Configuration</p>
-          {#if topology.selectedNode.type === 'router'}
-            <div class="form-group">
-              <label for="node-dhcp">DHCP Range</label>
-              <input id="node-dhcp" type="text" bind:value={topology.selectedNode.details.dhcp} placeholder="e.g. 192.168.1.100-200" />
-            </div>
-            <div class="form-group">
-              <label for="node-firewall">Firewall Status</label>
-              <select id="node-firewall" bind:value={topology.selectedNode.details.firewall}>
-                <option value="enabled">Enabled</option>
-                <option value="disabled">Disabled</option>
-              </select>
-            </div>
-          {:else if topology.selectedNode.type === 'ap'}
-            <div class="form-group">
-              <label for="node-ssid">SSID Name</label>
-              <input id="node-ssid" type="text" bind:value={topology.selectedNode.details.ssid} placeholder="WiFi Name" />
-            </div>
-            <div class="form-group">
-              <label for="node-vlan">VLAN ID</label>
-              <input id="node-vlan" type="text" bind:value={topology.selectedNode.details.vlan} placeholder="e.g. 10" />
-            </div>
-          {:else if topology.selectedNode.type === 'camera'}
-            <div class="form-group">
-              <label for="node-resolution">Stream Resolution</label>
-              <select id="node-resolution" bind:value={topology.selectedNode.details.resolution}>
-                <option value="720p">720p</option>
-                <option value="1080p">1080p</option>
-                <option value="4K">4K</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="node-dvr">DVR Storage IP</label>
-              <input id="node-dvr" type="text" bind:value={topology.selectedNode.details.dvrIp} placeholder="192.168.1.x" />
-            </div>
-          {:else if topology.selectedNode.type === 'switch'}
-            <div class="form-group">
-              <label for="node-vlans">Active VLANs</label>
-              <input id="node-vlans" type="text" bind:value={topology.selectedNode.details.vlans} placeholder="e.g. 10,20,30" />
-            </div>
-            <div class="form-group">
-              <label for="node-poe">PoE Status</label>
-              <select id="node-poe" bind:value={topology.selectedNode.details.poe}>
-                <option value="enabled">Enabled</option>
-                <option value="disabled">Disabled</option>
-              </select>
-            </div>
-          {:else if topology.selectedNode.type === 'server'}
-            <div class="form-group">
-              <label for="node-domain">Domain Name</label>
-              <input id="node-domain" type="text" bind:value={topology.selectedNode.details.domain} placeholder="e.g. srv.company.com" />
-            </div>
-            <div class="form-group">
-              <label for="node-os">Operating System</label>
-              <input id="node-os" type="text" bind:value={topology.selectedNode.details.os} placeholder="e.g. Ubuntu 22.04" />
-            </div>
-            <div class="form-group">
-              <label for="node-storage">Storage Capacity</label>
-              <input id="node-storage" type="text" bind:value={topology.selectedNode.details.storage} placeholder="e.g. 4TB RAID 1" />
-            </div>
-            <div class="form-group">
-              <label for="node-ram">RAM</label>
-              <input id="node-ram" type="text" bind:value={topology.selectedNode.details.ram} placeholder="e.g. 64GB" />
-            </div>
-          {:else if topology.selectedNode.type === 'computer'}
-            <div class="form-group">
-              <label for="node-user">Assigned User</label>
-              <input id="node-user" type="text" bind:value={topology.selectedNode.details.user} placeholder="Employee Name" />
-            </div>
-            <div class="form-group">
-              <label for="node-dept">Department</label>
-              <input id="node-dept" type="text" bind:value={topology.selectedNode.details.department} placeholder="e.g. Finance" />
-            </div>
-            <div class="form-group">
-              <label for="node-os">Operating System</label>
-              <input id="node-os" type="text" bind:value={topology.selectedNode.details.os} placeholder="e.g. Windows 11" />
-            </div>
-          {:else}
-            <div class="form-group">
-              <label for="node-notes">Custom Notes</label>
-              <textarea id="node-notes" rows="3" bind:value={topology.selectedNode.details.notes} placeholder="Additional info..."></textarea>
-            </div>
+          <div class="section-title">Additional Details</div>
+          {#if !topology.selectedNode.details}
+            <div style="display:none">{topology.selectedNode.details = {}}</div>
+          {/if}
+          
+          {#if topology.selectedNode.details}
+            {#each Object.entries(topology.selectedNode.details) as [key, value], i}
+              <div class="form-group kv-group">
+                <input type="text" class="kv-key" value={key} onchange={(e) => {
+                  const newKey = e.target.value.trim();
+                  if (newKey && newKey !== key) {
+                    topology.selectedNode.details[newKey] = value;
+                    delete topology.selectedNode.details[key];
+                    topology.selectedNode.details = { ...topology.selectedNode.details };
+                  }
+                }} placeholder="Key" />
+                <input type="text" class="kv-value" value={value} onchange={(e) => {
+                  topology.selectedNode.details[key] = e.target.value;
+                  topology.selectedNode.details = { ...topology.selectedNode.details };
+                }} placeholder="Value" />
+                <button class="icon-btn text-muted" style="color: #ef4444; flex-shrink: 0;" aria-label="Delete field" onclick={() => {
+                  delete topology.selectedNode.details[key];
+                  topology.selectedNode.details = { ...topology.selectedNode.details };
+                }}><X size={16}/></button>
+              </div>
+            {/each}
+            <button class="btn add-detail-btn" onclick={() => {
+              const num = Object.keys(topology.selectedNode.details).length + 1;
+              topology.selectedNode.details[`newField${num}`] = '';
+              topology.selectedNode.details = { ...topology.selectedNode.details };
+            }}>+ Add Field</button>
           {/if}
         {:else}
           <div class="info-group">
@@ -794,6 +743,38 @@
     font-family: var(--font-mono);
     color: var(--text-primary);
     font-weight: 600;
+  }
+
+  .kv-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .kv-key {
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.75rem !important;
+  }
+
+  .kv-value {
+    flex: 2;
+    font-family: var(--font-mono);
+  }
+
+  .add-detail-btn {
+    margin-top: 4px;
+    align-self: flex-start;
+    font-size: 0.75rem;
+    padding: 6px 10px;
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--text-secondary);
+  }
+
+  .add-detail-btn:hover {
+    border-color: var(--text-primary);
+    color: var(--text-primary);
   }
 
   .connections-preview {
