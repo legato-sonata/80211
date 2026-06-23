@@ -1,6 +1,6 @@
 <script>
   import { getTopology } from './context.js';
-  import { getCidrFromMask, getNetworkAddress, getBroadcastAddress, isPrivateIp } from './SimulationEngine.js';
+  import { getCidrFromMask, getNetworkAddress, getBroadcastAddress, isPrivateIp, getFirstHost, getLastHost } from './SimulationEngine.js';
   import X from '@lucide/svelte/icons/x';
   import Server from '@lucide/svelte/icons/server';
   import Router from '@lucide/svelte/icons/router';
@@ -423,6 +423,8 @@
                 <div class="calc-row"><span>IP Type:</span> <strong>{isPrivateIp(topology.selectedNode.ip) ? 'Private' : 'Public'}</strong></div>
                 <div class="calc-row"><span>Network Addr:</span> <strong>{getNetworkAddress(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
                 <div class="calc-row"><span>Broadcast Addr:</span> <strong>{getBroadcastAddress(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
+                <div class="calc-row"><span>First Host:</span> <strong>{getFirstHost(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
+                <div class="calc-row"><span>Last Host:</span> <strong>{getLastHost(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
                 <div class="calc-row"><span>Total IPs:</span> <strong>{Math.pow(2, 32 - cidr)}</strong></div>
                 <div class="calc-row"><span>Usable Hosts:</span> <strong>{cidr >= 31 ? Math.pow(2, 32 - cidr) : Math.pow(2, 32 - cidr) - 2}</strong></div>
               </div>
@@ -513,6 +515,8 @@
                 <div class="calc-row"><span>IP Type:</span> <strong>{isPrivateIp(topology.selectedNode.ip) ? 'Private' : 'Public'}</strong></div>
                 <div class="calc-row"><span>Network Addr:</span> <strong>{getNetworkAddress(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
                 <div class="calc-row"><span>Broadcast Addr:</span> <strong>{getBroadcastAddress(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
+                <div class="calc-row"><span>First Host:</span> <strong>{getFirstHost(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
+                <div class="calc-row"><span>Last Host:</span> <strong>{getLastHost(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
                 <div class="calc-row"><span>Total IPs:</span> <strong>{Math.pow(2, 32 - cidr)}</strong></div>
                 <div class="calc-row"><span>Usable Hosts:</span> <strong>{cidr >= 31 ? Math.pow(2, 32 - cidr) : Math.pow(2, 32 - cidr) - 2}</strong></div>
               </div>

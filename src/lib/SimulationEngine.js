@@ -25,10 +25,27 @@ export function getNetworkAddress(ip, mask) {
 
 export function getBroadcastAddress(ip, mask) {
   if (!ip || !mask) return '';
-  const i = ipToNum(ip);
-  const m = ipToNum(mask);
-  const invM = (~m) >>> 0;
-  return numToIp((i & m) | invM);
+  const partsIp = ip.split('.');
+  const partsMask = mask.split('.');
+  if (partsIp.length !== 4 || partsMask.length !== 4) return '';
+  const bc = partsIp.map((p, i) => (parseInt(p, 10) | (~parseInt(partsMask[i], 10) & 255)) >>> 0);
+  return bc.join('.');
+}
+
+export function getFirstHost(ip, mask) {
+  const cidr = getCidrFromMask(mask);
+  if (cidr >= 31) return 'N/A';
+  const nw = getNetworkAddress(ip, mask).split('.');
+  nw[3] = (parseInt(nw[3], 10) + 1).toString();
+  return nw.join('.');
+}
+
+export function getLastHost(ip, mask) {
+  const cidr = getCidrFromMask(mask);
+  if (cidr >= 31) return 'N/A';
+  const bc = getBroadcastAddress(ip, mask).split('.');
+  bc[3] = (parseInt(bc[3], 10) - 1).toString();
+  return bc.join('.');
 }
 
 export function isPrivateIp(ip) {
