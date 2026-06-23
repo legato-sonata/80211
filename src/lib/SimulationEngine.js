@@ -259,3 +259,40 @@ export function simulateDhcp(topology, sourceId) {
     return { success: false, ip: apippa, subnet: "255.255.0.0", gateway: "0.0.0.0", message: "An error occurred while renewing interface Local Area Connection : unable to contact your DHCP server." };
   }
 }
+
+export function simulateArp(topology, sourceId) {
+  const nodes = topology.nodes;
+  const links = topology.links;
+  const sourceNode = nodes.find(n => n.id === sourceId);
+  
+  if (!sourceNode || sourceNode.status !== 'online') {
+    return { success: false, message: "Interface: " + (sourceNode?.ip || 'Unknown') + " --- 0x2\n  No ARP Entries Found." };
+  }
+
+  const arpEntries = [];
+  
+  for (const node of nodes) {
+    if (node.id === sourceId || node.status !== 'online') continue;
+    
+    if (isOnSameSubnet(sourceNode.ip, sourceNode.subnet, node.ip, node.subnet)) {
+      const path = findL2Path(nodes, links, sourceId, node.id);
+      if (path) {
+        let mac = "00-00-00-00-00-00";
+        if (node.details && node.details.serial) {
+           mac = node.details.serial.toLowerCase().replace(/:/g, '-');
+        } else {
+           // generate a fake one from ip if none exists
+           const p = node.ip ? node.ip.split('.') : ['0','0','0','0'];
+           mac = `00-1a-2b-3c-${parseInt(p[2]).toString(16).padStart(2,'0')}-${parseInt(p[3]).toString(16).padStart(2,'0')}`;
+        }
+        arpEntries.push({ ip: node.ip, mac: mac, type: 'dynamic' });
+      }
+    }
+  }
+
+  if (arpEntries.length === 0) {
+    return { success: true, message: "No ARP Entries Found." };
+  }
+
+  return { success: true, entries: arpEntries, interfaceIp: sourceNode.ip };
+}

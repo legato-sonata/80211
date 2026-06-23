@@ -1,6 +1,6 @@
 <script>
   import { getTopology } from './context.js';
-  import { simulatePing, simulateTracert, simulateNslookup, simulateDhcp, getCidrFromMask, getNetworkAddress } from './SimulationEngine.js';
+  import { simulatePing, simulateTracert, simulateNslookup, simulateDhcp, getCidrFromMask, getNetworkAddress, simulateArp } from './SimulationEngine.js';
   import X from '@lucide/svelte/icons/x';
   
   let { node = null, onClose = () => {} } = $props();
@@ -50,6 +50,16 @@
            printLine(` 0 A S  0.0.0.0/0                          ${node.gateway.padEnd(15, ' ')} 1`);
         }
         printLine(` 1 ADC  ${getNetworkAddress(node.ip, node.subnet)}/${getCidrFromMask(node.subnet) || '24'}  ${node.ip.padEnd(15, ' ')}                 0`);
+      } else if (lowerCmd === '/ip arp print' || lowerCmd === 'ip arp print') {
+         const result = simulateArp(topology, node.id);
+         printLine('Flags: X - disabled, I - invalid, H - DHCP, D - dynamic, P - published, C - complete');
+         printLine(' #    ADDRESS         MAC-ADDRESS       INTERFACE');
+         if (result.success && result.entries) {
+           result.entries.forEach((entry, i) => {
+             const mac = entry.mac.replace(/-/g, ':').toUpperCase();
+             printLine(` ${i} DC ${entry.ip.padEnd(15, ' ')} ${mac} ether1`);
+           });
+         }
       } else if (lowerCmd.startsWith('ping ')) {
         const targetIp = lowerCmd.split(' ')[1];
         if (!targetIp) { printLine('expected IP address'); return; }
@@ -175,6 +185,22 @@
           printLine(`  ${(hopIndex + 1).toString().padEnd(2, ' ')}   <1 ms    <1 ms    <1 ms  ${hop.ip} [${hop.label}]`);
           hopIndex++;
         }, 1000);
+      } else if (program === 'arp') {
+        if (args[1] === '-a') {
+           const result = simulateArp(topology, node.id);
+           if (!result.success || !result.entries) {
+             printLine(result.message);
+           } else {
+             printLine(`Interface: ${result.interfaceIp} --- 0x2`);
+             printLine(`  Internet Address      Physical Address      Type`);
+             for (const entry of result.entries) {
+               printLine(`  ${entry.ip.padEnd(21, ' ')} ${entry.mac.padEnd(21, ' ')} ${entry.type}`);
+             }
+           }
+        } else {
+           printLine('Displays and modifies the IP-to-Physical address translation tables used by address resolution protocol (ARP).');
+           printLine('Usage: arp -a');
+        }
       } else if (program === 'cls' || program === 'clear') {
         outputLines = [];
       } else {
