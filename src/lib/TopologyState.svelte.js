@@ -331,7 +331,6 @@ export class TopologyState {
       label: `New ${type.toUpperCase()}`,
       vendor: '',
       mac,
-      ipv6: '',
       ipAllocation: isEndDevice ? 'dhcp' : 'static',
       ip: isEndDevice ? 'Auto' : '0.0.0.0',
       subnet: '255.255.255.0',

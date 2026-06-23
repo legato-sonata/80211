@@ -416,10 +416,6 @@
               <label for="node-mac">MAC Address</label>
               <input id="node-mac" type="text" bind:value={topology.selectedNode.mac} placeholder="00:1A:2B:3C:4D:5E" />
             </div>
-            <div class="form-group">
-              <label for="node-ipv6">IPv6 Address</label>
-              <input id="node-ipv6" type="text" bind:value={topology.selectedNode.ipv6} placeholder="fe80::1" />
-            </div>
             {#if topology.selectedNode.ip && topology.selectedNode.subnet}
               {@const cidr = getCidrFromMask(topology.selectedNode.subnet)}
               <div class="subnet-calc-card">
@@ -512,12 +508,6 @@
               <span class="info-label">MAC Address</span>
               <span class="info-value">{topology.selectedNode.mac || '-'}</span>
             </div>
-            {#if topology.selectedNode.ipv6}
-            <div class="info-group">
-              <span class="info-label">IPv6 Address</span>
-              <span class="info-value">{topology.selectedNode.ipv6}</span>
-            </div>
-            {/if}
             {#if topology.selectedNode.ip && topology.selectedNode.subnet}
               {@const cidr = getCidrFromMask(topology.selectedNode.subnet)}
               <div class="subnet-calc-card" style="margin-top: 8px;">
@@ -540,12 +530,6 @@
               <span class="info-label">MAC Address</span>
               <span class="info-value">{topology.selectedNode.mac || '-'}</span>
             </div>
-            {#if topology.selectedNode.ipv6}
-            <div class="info-group">
-              <span class="info-label">IPv6 Address</span>
-              <span class="info-value">{topology.selectedNode.ipv6}</span>
-            </div>
-            {/if}
           {/if}
           <div class="info-group">
             <span class="info-label">Power</span>

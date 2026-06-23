@@ -59,10 +59,6 @@ export function isPrivateIp(ip) {
   return false;
 }
 
-export function isIPv6(ip) {
-  return typeof ip === 'string' && ip.includes(':');
-}
-
 export function isOnSameSubnet(ip1, mask1, ip2, mask2) {
   if (!ip1 || !mask1 || !ip2 || !mask2) return false;
   const i1 = ipToNum(ip1);
@@ -143,26 +139,12 @@ export function simulatePing(topology, sourceId, targetIp) {
     return { success: false, message: "Source device is offline or unavailable." };
   }
 
-  const isV6 = isIPv6(targetIp);
-  if (isV6 && !sourceNode.ipv6) {
-    return { success: false, message: "PING: transmit failed. General failure." };
-  }
-
-  const targetNode = nodes.find(n => isV6 ? n.ipv6 === targetIp : n.ip === targetIp);
+  const targetNode = nodes.find(n => n.ip === targetIp);
   if (!targetNode) {
     return { success: false, message: "Request timed out." };
   }
   if (targetNode.status !== 'online') {
     return { success: false, message: "Destination host unreachable." };
-  }
-
-  if (isV6) {
-    const path = findL2Path(nodes, links, sourceId, targetNode.id);
-    if (path) {
-      return { success: true, message: `Reply from ${targetIp}: time<1ms`, path };
-    } else {
-      return { success: false, message: "Destination host unreachable." };
-    }
   }
 
   if (isOnSameSubnet(sourceNode.ip, sourceNode.subnet, targetNode.ip, targetNode.subnet)) {
