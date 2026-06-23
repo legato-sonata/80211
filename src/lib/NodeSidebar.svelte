@@ -416,6 +416,10 @@
               <label for="node-mac">MAC Address</label>
               <input id="node-mac" type="text" bind:value={topology.selectedNode.mac} placeholder="00:1A:2B:3C:4D:5E" />
             </div>
+            <div class="form-group">
+              <label for="node-vlan">VLAN ID (Access)</label>
+              <input id="node-vlan" type="number" bind:value={topology.selectedNode.vlan} placeholder="1" min="1" max="4094" />
+            </div>
             {#if topology.selectedNode.ip && topology.selectedNode.subnet}
               {@const cidr = getCidrFromMask(topology.selectedNode.subnet)}
               <div class="subnet-calc-card">
@@ -508,6 +512,10 @@
               <span class="info-label">MAC Address</span>
               <span class="info-value">{topology.selectedNode.mac || '-'}</span>
             </div>
+            <div class="info-group">
+              <span class="info-label">VLAN ID</span>
+              <span class="info-value">{topology.selectedNode.vlan || 1}</span>
+            </div>
             {#if topology.selectedNode.ip && topology.selectedNode.subnet}
               {@const cidr = getCidrFromMask(topology.selectedNode.subnet)}
               <div class="subnet-calc-card" style="margin-top: 8px;">
@@ -529,6 +537,10 @@
             <div class="info-group">
               <span class="info-label">MAC Address</span>
               <span class="info-value">{topology.selectedNode.mac || '-'}</span>
+            </div>
+            <div class="info-group">
+              <span class="info-label">VLAN ID</span>
+              <span class="info-value">{topology.selectedNode.vlan || 1}</span>
             </div>
           {/if}
           <div class="info-group">

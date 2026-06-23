@@ -69,6 +69,24 @@ export function isOnSameSubnet(ip1, mask1, ip2, mask2) {
 }
 
 export function findL2Path(nodes, links, sourceId, targetId) {
+  const sourceNode = nodes.find(n => n.id === sourceId);
+  const targetNode = nodes.find(n => n.id === targetId);
+  
+  if (sourceNode && targetNode) {
+    const getVlans = (node) => {
+      if ((node.type === 'router' || node.type === 'switch') && node.details && node.details.vlans) {
+         return node.details.vlans.split(',').map(v => parseInt(v.trim()));
+      }
+      return [parseInt(node.vlan) || 1];
+    };
+    
+    const sourceVlans = getVlans(sourceNode);
+    const targetVlans = getVlans(targetNode);
+    
+    const hasCommonVlan = sourceVlans.some(v => targetVlans.includes(v));
+    if (!hasCommonVlan) return null;
+  }
+
   const queue = [[sourceId]];
   const visited = new Set([sourceId]);
 
