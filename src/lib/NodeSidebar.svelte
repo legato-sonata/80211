@@ -413,8 +413,8 @@
               <input id="node-gateway" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.gateway} oncompositionstart={() => isComposing = true} oncompositionend={(e) => handleIpCompositionEnd(e, 'gateway')} oninput={(e) => formatIpAddress(e, 'gateway')} placeholder="192.168.1.1" />
             </div>
             {#if topology.selectedNode.ip && topology.selectedNode.subnet}
+              {@const cidr = getCidrFromMask(topology.selectedNode.subnet)}
               <div class="subnet-calc-card">
-                {@const cidr = getCidrFromMask(topology.selectedNode.subnet)}
                 <div class="calc-row"><span>CIDR Notation:</span> <strong>{topology.selectedNode.ip}/{cidr}</strong></div>
                 <div class="calc-row"><span>IP Type:</span> <strong>{isPrivateIp(topology.selectedNode.ip) ? 'Private' : 'Public'}</strong></div>
                 <div class="calc-row"><span>Network Addr:</span> <strong>{getNetworkAddress(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
@@ -550,8 +550,8 @@
               <span class="info-value">{topology.selectedNode.gateway || '-'}</span>
             </div>
             {#if topology.selectedNode.ip && topology.selectedNode.subnet}
+              {@const cidr = getCidrFromMask(topology.selectedNode.subnet)}
               <div class="subnet-calc-card" style="margin-top: 8px;">
-                {@const cidr = getCidrFromMask(topology.selectedNode.subnet)}
                 <div class="calc-row"><span>CIDR Notation:</span> <strong>{topology.selectedNode.ip}/{cidr}</strong></div>
                 <div class="calc-row"><span>IP Type:</span> <strong>{isPrivateIp(topology.selectedNode.ip) ? 'Private' : 'Public'}</strong></div>
                 <div class="calc-row"><span>Network Addr:</span> <strong>{getNetworkAddress(topology.selectedNode.ip, topology.selectedNode.subnet)}</strong></div>
