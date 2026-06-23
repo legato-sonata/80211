@@ -574,14 +574,6 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="link-status">Connection Status</label>
-            <select id="link-status" bind:value={topology.selectedLink.status}>
-              <option value="active">Active (Green)</option>
-              <option value="warning">Warning (Yellow)</option>
-              <option value="offline">Offline (Red)</option>
-            </select>
-          </div>
-          <div class="form-group">
             <label for="link-source-port">Source Port</label>
             <input id="link-source-port" type="text" bind:value={topology.selectedLink.sourcePort} placeholder="eth0" />
           </div>
@@ -589,6 +581,19 @@
             <label for="link-target-port">Target Port</label>
             <input id="link-target-port" type="text" bind:value={topology.selectedLink.targetPort} placeholder="eth0" />
           </div>
+          <div class="divider"></div>
+          <button class="btn btn-danger" style="width: 100%; margin-top: 8px;" onclick={() => {
+            const index = topology.links.findIndex(l => l.id === topology.selectedLink.id);
+            if (index !== -1) {
+              topology.links.splice(index, 1);
+              topology.selectedLinkId = null;
+              topology.isEditing = false;
+              topology.pushHistory();
+            }
+          }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+            Delete Connection
+          </button>
         {:else}
           <div class="info-group">
             <span class="info-label">Type</span>

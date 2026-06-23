@@ -262,8 +262,6 @@ export class TopologyState {
         if (link.status !== 'offline') {
           link.status = 'offline';
         }
-      } else if (link.status === 'offline') {
-        // If it was manually set to offline (cut cable), keep it offline
       } else {
         let isValid = true;
         
@@ -286,7 +284,7 @@ export class TopologyState {
         }
 
         if (isValid) {
-          if (link.status === 'warning') {
+          if (link.status === 'warning' || link.status === 'offline') {
             link.status = 'active';
           }
         } else {
