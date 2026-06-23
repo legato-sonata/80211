@@ -278,8 +278,8 @@ export function simulateArp(topology, sourceId) {
       const path = findL2Path(nodes, links, sourceId, node.id);
       if (path) {
         let mac = "00-00-00-00-00-00";
-        if (node.details && node.details.serial) {
-           mac = node.details.serial.toLowerCase().replace(/:/g, '-');
+        if (node.mac) {
+           mac = node.mac.toLowerCase().replace(/:/g, '-');
         } else {
            // generate a fake one from ip if none exists
            const p = node.ip ? node.ip.split('.') : ['0','0','0','0'];

@@ -412,6 +412,10 @@
               <label for="node-gateway">Default Gateway</label>
               <input id="node-gateway" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value={topology.selectedNode.gateway} oncompositionstart={() => isComposing = true} oncompositionend={(e) => handleIpCompositionEnd(e, 'gateway')} oninput={(e) => formatIpAddress(e, 'gateway')} placeholder="192.168.1.1" />
             </div>
+            <div class="form-group">
+              <label for="node-mac">MAC Address</label>
+              <input id="node-mac" type="text" bind:value={topology.selectedNode.mac} placeholder="00:1A:2B:3C:4D:5E" />
+            </div>
             {#if topology.selectedNode.ip && topology.selectedNode.subnet}
               {@const cidr = getCidrFromMask(topology.selectedNode.subnet)}
               <div class="subnet-calc-card">
@@ -498,6 +502,10 @@
               <span class="info-label">Default Gateway</span>
               <span class="info-value">{topology.selectedNode.gateway || '-'}</span>
             </div>
+            <div class="info-group">
+              <span class="info-label">MAC Address</span>
+              <span class="info-value">{topology.selectedNode.mac || '-'}</span>
+            </div>
             {#if topology.selectedNode.ip && topology.selectedNode.subnet}
               {@const cidr = getCidrFromMask(topology.selectedNode.subnet)}
               <div class="subnet-calc-card" style="margin-top: 8px;">
@@ -513,6 +521,10 @@
             <div class="info-group">
               <span class="info-label">IP Address</span>
               <span class="info-value text-muted">{topology.selectedNode.ip === 'Auto' ? 'Auto Assigned' : topology.selectedNode.ip === 'Disconnected' ? 'Disconnected' : `${topology.selectedNode.ip} (DHCP)`}</span>
+            </div>
+            <div class="info-group">
+              <span class="info-label">MAC Address</span>
+              <span class="info-value">{topology.selectedNode.mac || '-'}</span>
             </div>
           {/if}
           <div class="info-group">
@@ -661,12 +673,12 @@
     color: var(--text-secondary);
   }
 
-  .form-group input, .form-group select, .form-group textarea {
+  .form-group input, .form-group select {
     padding: 8px 10px;
     font-size: 0.85rem;
   }
 
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  .form-group input:focus, .form-group select:focus {
     border-color: var(--border-focus);
   }
 
@@ -758,7 +770,7 @@
   }
 
   .kv-value {
-    flex: 2;
+    flex: 1;
     font-family: var(--font-mono);
   }
 
