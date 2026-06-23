@@ -377,12 +377,12 @@ export class TopologyState {
       return;
     }
 
-    const exists = this.links.find(l => (l.source === sourceId && l.target === targetId) || (l.source === targetId && l.target === sourceId));
+    const exists = this.links.find(l => (l.source === source && l.target === target) || (l.source === target && l.target === source));
     if (!exists) {
       const newLink = {
         id: `l${Date.now()}`,
-        source: sourceId,
-        target: targetId,
+        source: source,
+        target: target,
         type: 'ethernet',
         status: 'active',
         sourcePort: 'eth0',
