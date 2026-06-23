@@ -573,11 +573,26 @@
               <option value="wireless">Wireless (Dashed)</option>
             </select>
           </div>
-
+          <div class="form-group">
+            <label for="link-source-port">Source Port</label>
+            <input id="link-source-port" type="text" bind:value={topology.selectedLink.sourcePort} placeholder="eth0" />
+          </div>
+          <div class="form-group">
+            <label for="link-target-port">Target Port</label>
+            <input id="link-target-port" type="text" bind:value={topology.selectedLink.targetPort} placeholder="eth0" />
+          </div>
         {:else}
           <div class="info-group">
             <span class="info-label">Type</span>
             <span class="info-value">{topology.selectedLink.type}</span>
+          </div>
+          <div class="info-group">
+            <span class="info-label">Source Port</span>
+            <span class="info-value">{topology.selectedLink.sourcePort || '-'}</span>
+          </div>
+          <div class="info-group">
+            <span class="info-label">Target Port</span>
+            <span class="info-value">{topology.selectedLink.targetPort || '-'}</span>
           </div>
           <div class="info-group">
             <span class="info-label">Status</span>

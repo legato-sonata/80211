@@ -326,6 +326,28 @@
               stroke-dasharray={getStrokePattern(link.type)}
               class="link-line"
             />
+            {#if link.sourcePort}
+              <text 
+                x={source.x + 50 + (target.x - source.x) * 0.25} 
+                y={source.y + 50 + (target.y - source.y) * 0.25} 
+                fill="var(--text-secondary)" 
+                font-size="10px"
+                font-family="var(--font-mono)"
+                text-anchor="middle"
+                class="port-label"
+              >{link.sourcePort}</text>
+            {/if}
+            {#if link.targetPort}
+              <text 
+                x={target.x + 50 + (source.x - target.x) * 0.25} 
+                y={target.y + 50 + (source.y - target.y) * 0.25} 
+                fill="var(--text-secondary)" 
+                font-size="10px"
+                font-family="var(--font-mono)"
+                text-anchor="middle"
+                class="port-label"
+              >{link.targetPort}</text>
+            {/if}
           </g>
         {/if}
       {/each}
@@ -416,6 +438,15 @@
 
   .link.selected .link-line {
     filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.3));
+  }
+
+  .port-label {
+    user-select: none;
+    pointer-events: none;
+    background: white;
+    paint-order: stroke;
+    stroke: var(--bg-color);
+    stroke-width: 3px;
   }
 
   .nodes-layer {

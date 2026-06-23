@@ -1,6 +1,6 @@
 const DEFAULT_EXAMPLE_STATE = {
   nodes: [
-    { id: 'n1', type: 'router', label: 'Main Gateway', mac: '00:1A:2B:3C:4D:5C', vlan: 1, ip: '192.168.1.1', subnet: '255.255.255.0', gateway: '0.0.0.0', status: 'online', details: { dhcp: '192.168.1.100 - 192.168.1.200', firmware: 'v2.4.1', model: 'ER-X', vlans: '1,10,20' }, x: -50, y: -200 },
+    { id: 'n1', type: 'router', label: 'Main Gateway', mac: '00:1A:2B:3C:4D:5C', vlan: 1, ip: '192.168.1.1', subnet: '255.255.255.0', gateway: '0.0.0.0', status: 'online', details: { dhcp: '192.168.1.100 - 192.168.1.200', firmware: 'v2.4.1', model: 'ER-X', vlans: '1,10,20', gatewayPort: 'eth1' }, x: -50, y: -200 },
     { id: 'n2', type: 'switch', label: 'Core Switch', mac: '00:1A:2B:3C:4D:5D', vlan: 1, ip: '192.168.1.2', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { ports: 24, poe: true, model: 'USW-24-PoE', vlans: '1,10,20' }, x: -50, y: -50 },
     { id: 'n3', type: 'pos', label: 'Register 1 (VLAN 10)', mac: '00:1A:2B:3C:4D:5E', vlan: 10, ip: '192.168.10.101', subnet: '255.255.255.0', gateway: '192.168.10.1', status: 'online', details: { location: 'Front Counter' }, x: -250, y: 150 },
     { id: 'n4', type: 'pos', label: 'Register 2', mac: '00:1A:2B:3C:4D:5F', vlan: 1, ip: '192.168.1.102', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'warning', details: { location: 'Front Counter', error: 'High Latency detected' }, x: -50, y: 150 },
@@ -9,12 +9,12 @@ const DEFAULT_EXAMPLE_STATE = {
     { id: 'n7', type: 'printer', label: 'Kitchen Printer', mac: '00:1A:2B:3C:4D:62', vlan: 1, ip: '192.168.1.50', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'warning', details: { ink: 'Low' }, x: -250, y: -50 }
   ],
   links: [
-    { id: 'l1', source: 'n1', target: 'n2', type: 'fiber', status: 'active' },
-    { id: 'l2', source: 'n2', target: 'n3', type: 'ethernet', status: 'active' },
-    { id: 'l3', source: 'n2', target: 'n4', type: 'ethernet', status: 'warning' },
-    { id: 'l4', source: 'n2', target: 'n5', type: 'ethernet', status: 'active' },
-    { id: 'l5', source: 'n2', target: 'n6', type: 'ethernet', status: 'active' },
-    { id: 'l6', source: 'n2', target: 'n7', type: 'ethernet', status: 'warning' }
+    { id: 'l1', source: 'n1', target: 'n2', type: 'fiber', status: 'active', sourcePort: 'eth1', targetPort: 'port24' },
+    { id: 'l2', source: 'n2', target: 'n3', type: 'ethernet', status: 'active', sourcePort: 'port1', targetPort: 'eth0' },
+    { id: 'l3', source: 'n2', target: 'n4', type: 'ethernet', status: 'warning', sourcePort: 'port2', targetPort: 'eth0' },
+    { id: 'l4', source: 'n2', target: 'n5', type: 'ethernet', status: 'active', sourcePort: 'port3', targetPort: 'eth0' },
+    { id: 'l5', source: 'n2', target: 'n6', type: 'ethernet', status: 'active', sourcePort: 'port4', targetPort: 'eth0' },
+    { id: 'l6', source: 'n2', target: 'n7', type: 'ethernet', status: 'warning', sourcePort: 'port5', targetPort: 'eth0' }
   ]
 };
 
@@ -377,10 +377,18 @@ export class TopologyState {
       return;
     }
 
-    const exists = this.links.find(l => (l.source === source && l.target === target) || (l.source === target && l.target === source));
+    const exists = this.links.find(l => (l.source === sourceId && l.target === targetId) || (l.source === targetId && l.target === sourceId));
     if (!exists) {
-      const id = `l${Date.now()}`;
-      this.links.push({ id, source, target, type, status: 'active' });
+      const newLink = {
+        id: `l${Date.now()}`,
+        source: sourceId,
+        target: targetId,
+        type: 'ethernet',
+        status: 'active',
+        sourcePort: 'eth0',
+        targetPort: 'eth0'
+      };
+      this.links.push(newLink);
       this.pushHistory();
     }
   }

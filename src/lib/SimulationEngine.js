@@ -188,6 +188,21 @@ export function simulatePing(topology, sourceId, targetIp) {
     return { success: false, message: "Destination host unreachable (Cannot reach gateway)." };
   }
   
+  if (pathToGateway.length >= 2) {
+    const prevNodeId = pathToGateway[pathToGateway.length - 2];
+    const finalLink = links.find(l => 
+        (l.source === prevNodeId && l.target === sourceGatewayNode.id) ||
+        (l.target === prevNodeId && l.source === sourceGatewayNode.id)
+    );
+    
+    if (finalLink && sourceGatewayNode.details && sourceGatewayNode.details.gatewayPort) {
+        const portUsed = finalLink.source === sourceGatewayNode.id ? finalLink.sourcePort : finalLink.targetPort;
+        if (portUsed !== sourceGatewayNode.details.gatewayPort) {
+            return { success: false, message: `Request timed out (Gateway is on ${sourceGatewayNode.details.gatewayPort}, but connected to ${portUsed || 'Unknown'}).` };
+        }
+    }
+  }
+
   const routerPath = findL3Path(nodes, links, sourceGatewayNode.id, targetNode.id);
   if (!routerPath) {
      return { success: false, message: "Request timed out (No route to host)." };
