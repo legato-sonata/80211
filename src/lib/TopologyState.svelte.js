@@ -4,7 +4,7 @@ const DEFAULT_EXAMPLE_STATE = {
     { id: 'n2', type: 'switch', label: 'Core Switch', mac: '00:1A:2B:3C:4D:5D', vlan: 1, ip: '192.168.1.2', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { ports: 24, poe: true, model: 'USW-24-PoE', vlans: '1,10,20' }, x: -50, y: -50 },
     { id: 'n3', type: 'pos', label: 'Register 1 (VLAN 10)', mac: '00:1A:2B:3C:4D:5E', vlan: 10, ip: '192.168.10.101', subnet: '255.255.255.0', gateway: '192.168.10.1', status: 'online', details: { location: 'Front Counter' }, x: -250, y: 150 },
     { id: 'n4', type: 'pos', label: 'Register 2', mac: '00:1A:2B:3C:4D:5F', vlan: 1, ip: '192.168.1.102', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'warning', details: { location: 'Front Counter', error: 'High Latency detected' }, x: -50, y: 150 },
-    { id: 'n5', type: 'ap', label: 'Ceiling AP (Floor)', mac: '00:1A:2B:3C:4D:60', vlan: 1, ip: '192.168.1.10', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'offline', details: { ssid: 'Store_Guest' }, x: 150, y: 150 },
+    { id: 'n5', type: 'ap', label: 'Ceiling AP (Floor)', mac: '00:1A:2B:3C:4D:60', vlan: 1, ip: '192.168.1.10', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'offline', power: false, details: { ssid: 'Store_Guest' }, x: 150, y: 150 },
     { id: 'n6', type: 'camera', label: 'CCTV Front Door', mac: '00:1A:2B:3C:4D:61', vlan: 1, ip: '192.168.1.20', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'online', details: { resolution: '1080p' }, x: 150, y: -200 },
     { id: 'n7', type: 'printer', label: 'Kitchen Printer', mac: '00:1A:2B:3C:4D:62', vlan: 1, ip: '192.168.1.50', subnet: '255.255.255.0', gateway: '192.168.1.1', status: 'warning', details: { ink: 'Low' }, x: -250, y: -50 }
   ],
@@ -12,9 +12,9 @@ const DEFAULT_EXAMPLE_STATE = {
     { id: 'l1', source: 'n1', target: 'n2', type: 'fiber', status: 'active', sourcePort: 'eth1', targetPort: 'port24' },
     { id: 'l2', source: 'n2', target: 'n3', type: 'ethernet', status: 'active', sourcePort: 'port1', targetPort: 'eth0' },
     { id: 'l3', source: 'n2', target: 'n4', type: 'ethernet', status: 'warning', sourcePort: 'port2', targetPort: 'eth0' },
-    { id: 'l4', source: 'n2', target: 'n5', type: 'ethernet', status: 'active', sourcePort: 'port3', targetPort: 'eth0' },
+    { id: 'l4', source: 'n2', target: 'n5', type: 'ethernet', status: 'offline', sourcePort: 'port3', targetPort: 'eth0' },
     { id: 'l5', source: 'n2', target: 'n6', type: 'ethernet', status: 'active', sourcePort: 'port4', targetPort: 'eth0' },
-    { id: 'l6', source: 'n2', target: 'n7', type: 'ethernet', status: 'warning', sourcePort: 'port5', targetPort: 'eth0' }
+    { id: 'l6', source: 'n2', target: 'n7', type: 'ethernet', status: 'active', sourcePort: 'port5', targetPort: 'eth0' }
   ]
 };
 
@@ -253,9 +253,8 @@ export class TopologyState {
       const targetPower = target.power !== false;
 
       const getVlans = (node) => {
-        if (!node.details) return null;
-        if (node.details.vlans) return node.details.vlans.split(',').map(v => v.trim()).filter(Boolean);
-        if (node.details.vlan) return [node.details.vlan.toString().trim()].filter(Boolean);
+        if (node.details && node.details.vlans) return node.details.vlans.split(',').map(v => v.trim()).filter(Boolean);
+        if (node.vlan) return [node.vlan.toString().trim()].filter(Boolean);
         return null;
       };
 
@@ -263,16 +262,19 @@ export class TopologyState {
         if (link.status !== 'offline') {
           link.status = 'offline';
         }
+      } else if (link.status === 'offline') {
+        // If it was manually set to offline (cut cable), keep it offline
       } else {
-        let isValid = false;
+        let isValid = true;
+        
+        const isTransparent = (n) => ['switch', 'ap'].includes(n.type);
 
-        if (isValidIp(source.ip) && isValidIp(target.ip)) {
-          const matchSourceMask = isSameSubnet(source.ip, target.ip, source.subnet);
-          const matchTargetMask = isSameSubnet(source.ip, target.ip, target.subnet);
-          isValid = matchSourceMask && matchTargetMask;
-        } else {
-          // Fallback to active if IPs are unconfigured (assume Layer 2 works)
-          isValid = true;
+        if (!isTransparent(source) && !isTransparent(target)) {
+          if (isValidIp(source.ip) && isValidIp(target.ip)) {
+            const matchSourceMask = isSameSubnet(source.ip, target.ip, source.subnet);
+            const matchTargetMask = isSameSubnet(source.ip, target.ip, target.subnet);
+            isValid = matchSourceMask && matchTargetMask;
+          }
         }
 
         if (isValid) {
@@ -284,7 +286,7 @@ export class TopologyState {
         }
 
         if (isValid) {
-          if (link.status === 'warning' || link.status === 'offline') {
+          if (link.status === 'warning') {
             link.status = 'active';
           }
         } else {
